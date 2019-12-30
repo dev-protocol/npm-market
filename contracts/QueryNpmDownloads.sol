@@ -7,14 +7,15 @@ import {StringToUint} from "./lib/StringToUint.sol";
 import {NpmMarket} from "./NpmMarket.sol";
 
 contract QueryNpmDownloads is Timebased, usingOraclize {
-	using UintToString for uint;
+	using UintToString for uint256;
 	using StringToUint for string;
 	mapping(bytes32 => address) internal callbackDestinations;
 
-	function query(uint256 _startTime, uint256 _endTime, string calldata _package)
-		external
-		returns (bytes32)
-	{
+	function query(
+		uint256 _startTime,
+		uint256 _endTime,
+		string calldata _package
+	) external returns (bytes32) {
 		require(
 			oraclize_getPrice("URL") > address(this).balance,
 			"Calculation query was NOT sent"

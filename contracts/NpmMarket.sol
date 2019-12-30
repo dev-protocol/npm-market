@@ -1,7 +1,9 @@
 pragma solidity ^0.5.0;
 
 import {IMarket} from "@dev-protocol/protocol/contracts/src/market/IMarket.sol";
-import {IAllocator} from "@dev-protocol/protocol/contracts/src/allocator/IAllocator.sol";
+import {
+	IAllocator
+} from "@dev-protocol/protocol/contracts/src/allocator/IAllocator.sol";
 import {QueryNpmAuthentication} from "./QueryNpmAuthentication.sol";
 import {QueryNpmDownloads} from "./QueryNpmDownloads.sol";
 import {StringToUint} from "./lib/StringToUint.sol";
