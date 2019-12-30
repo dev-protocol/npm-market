@@ -1,8 +1,8 @@
 {
-	"name": "template-repos-ts-sol",
+	"name": "npm-market",
+	"private": true,
 	"version": "1.0.0",
-	"description": "Template repository for using TypeScript and Solidity",
-	"main": "index.js",
+	"description": "Market Contract for npm",
 	"scripts": {
 		"test": "truffle test",
 		"pretest": "npm run generate",
@@ -41,5 +41,8 @@
 		"hooks": {
 			"pre-commit": "npm run lint"
 		}
+	},
+	"dependencies": {
+		"@dev-protocol/protocol": "^0.1.0"
 	}
 }
