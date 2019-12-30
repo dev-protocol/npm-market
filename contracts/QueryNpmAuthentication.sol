@@ -4,16 +4,16 @@ import "./module/provableAPI.sol";
 import {StringToUint} from "./lib/StringToUint.sol";
 import {NpmMarket} from "./NpmMarket.sol";
 
-contract QueryNpmAuthentication is usingProvable {
+contract QueryNpmAuthentication is usingOraclize {
 	using StringToUint for string;
 	mapping(bytes32 => address) internal callbackDestinations;
 
-	function query(string memory _package, string memory _readOnlyToken)
+	function query(string calldata _package, string calldata _readOnlyToken)
 		external
 		returns (bytes32)
 	{
 		require(
-			provable_getPrice("URL") > address(this).balance,
+			oraclize_getPrice("URL") > address(this).balance,
 			"Calculation query was NOT sent"
 		);
 		string memory url = string(
@@ -35,6 +35,6 @@ contract QueryNpmAuthentication is usingProvable {
 			revert("mismatch oraclize_cbAddress");
 		}
 		address callback = callbackDestinations[_id];
-		NpmMarket(callback).authenticate(_result);
+		NpmMarket(callback).authenticated(_id, _result);
 	}
 }

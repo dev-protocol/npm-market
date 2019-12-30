@@ -1,6 +1,6 @@
 pragma solidity ^0.5.0;
 
-import "github.com/OpenZeppelin/openzeppelin-contracts/contracts/math/SafeMath.sol";
+import {SafeMath} from "@openzeppelin/contracts/math/SafeMath.sol";
 
 contract Timebased {
 	using SafeMath for uint256;

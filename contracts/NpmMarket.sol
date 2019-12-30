@@ -1,16 +1,13 @@
 pragma solidity ^0.5.0;
 
-import {Market} from "@dev-protocol/protocol/contracts/src/market/Market.sol";
-import {
-	Allocator
-} from "@dev-protocol/protocol/contracts/src/allocator/Allocator.sol";
+import {IMarket} from "@dev-protocol/protocol/contracts/src/market/IMarket.sol";
+import {IAllocator} from "@dev-protocol/protocol/contracts/src/allocator/IAllocator.sol";
 import {QueryNpmAuthentication} from "./QueryNpmAuthentication.sol";
 import {QueryNpmDownloads} from "./QueryNpmDownloads.sol";
 import {StringToUint} from "./lib/StringToUint.sol";
 
-contract NpmMarket is Timebased, usingProvable {
+contract NpmMarket {
 	using StringToUint for string;
-	using UintToString for uint256;
 	string public schema = "['npm package', 'npm read-only token']";
 	address public queryNpmAuthentication;
 	address public queryNpmDownloads;
@@ -18,9 +15,9 @@ contract NpmMarket is Timebased, usingProvable {
 	mapping(address => string) internal packages;
 	mapping(bytes32 => address) internal callbackMarket;
 	mapping(bytes32 => address) internal callbackAllocator;
-	mapping(bytes32 => string) internal pendingAuthentication;
+	mapping(bytes32 => address) internal pendingAuthentication;
 	mapping(bytes32 => string) internal pendingAuthenticationPackage;
-	mapping(bytes32 => string) internal pendingMetrics;
+	mapping(bytes32 => address) internal pendingMetrics;
 
 	constructor(address _queryNpmAuthentication, address _queryNpmDownloads)
 		public
@@ -33,9 +30,9 @@ contract NpmMarket is Timebased, usingProvable {
 		address _prop,
 		string calldata _npmPackage,
 		string calldata _npmReadOnlyToken,
-		string,
-		string,
-		string,
+		string calldata,
+		string calldata,
+		string calldata,
 		address _dest
 	) external returns (bool) {
 		bytes32 id = QueryNpmAuthentication(queryNpmAuthentication).query(
@@ -48,16 +45,16 @@ contract NpmMarket is Timebased, usingProvable {
 		return true;
 	}
 
-	function authenticated(bytes32 _id, string memory _result) external {
+	function authenticated(bytes32 _id, string calldata _result) external {
 		address property = pendingAuthentication[_id];
-		uint8 result = _result.toUint();
+		uint256 result = _result.toUint(0);
 		if (result == 0) {
 			return;
 		}
 		address dest = callbackMarket[_id];
 		delete pendingAuthentication[_id];
 		delete callbackMarket[_id];
-		address metrics = Market(dest).authenticatedCallback(property);
+		address metrics = IMarket(dest).authenticatedCallback(property);
 		packages[metrics] = pendingAuthenticationPackage[_id];
 		delete pendingAuthenticationPackage[_id];
 	}
@@ -72,17 +69,17 @@ contract NpmMarket is Timebased, usingProvable {
 			_end,
 			package
 		);
-		pendingMetrics[id] = metrics;
+		pendingMetrics[id] = _metrics;
 		callbackAllocator[id] = msg.sender;
 		return true;
 	}
 
-	function calculated(bytes32 _id, string memory _result) external {
+	function calculated(bytes32 _id, string calldata _result) external {
 		address metrics = pendingMetrics[_id];
-		uint256 count = _result.toUint();
+		uint256 count = _result.toUint(0);
 		address dest = callbackAllocator[_id];
 		delete pendingMetrics[_id];
 		delete callbackAllocator[_id];
-		Allocator(dest).calculatedCallback(metrics, count);
+		IAllocator(dest).calculatedCallback(metrics, count);
 	}
 }

@@ -2,20 +2,21 @@ pragma solidity ^0.5.0;
 
 import "./module/provableAPI.sol";
 import {Timebased} from "./lib/Timebased.sol";
+import {UintToString} from "./lib/UintToString.sol";
 import {StringToUint} from "./lib/StringToUint.sol";
 import {NpmMarket} from "./NpmMarket.sol";
 
-contract QueryNpmDownloads is Timebased, usingProvable {
+contract QueryNpmDownloads is Timebased, usingOraclize {
+	using UintToString for uint;
 	using StringToUint for string;
-	using UintToString for uint256;
 	mapping(bytes32 => address) internal callbackDestinations;
 
-	function query(uint256 _startTime, uint256 _endTime, string memory _package)
+	function query(uint256 _startTime, uint256 _endTime, string calldata _package)
 		external
 		returns (bytes32)
 	{
 		require(
-			provable_getPrice("URL") > address(this).balance,
+			oraclize_getPrice("URL") > address(this).balance,
 			"Calculation query was NOT sent"
 		);
 		(string memory start, string memory end) = date(_startTime, _endTime);
@@ -43,7 +44,7 @@ contract QueryNpmDownloads is Timebased, usingProvable {
 			revert("mismatch oraclize_cbAddress");
 		}
 		address callback = callbackDestinations[_id];
-		NpmMarket(callback).calculated(_result);
+		NpmMarket(callback).calculated(_id, _result);
 	}
 
 	// The function is based on bokkypoobah/BokkyPooBahsDateTimeLibrary._daysToDate
@@ -55,7 +56,7 @@ contract QueryNpmDownloads is Timebased, usingProvable {
 	{
 		int256 __days = int256(_seconds / 86400);
 
-		int256 L = __days + 68569 + OFFSET19700101;
+		int256 L = __days + 68569 + 2440588;
 		int256 N = (4 * L) / 146097;
 		L = L - (146097 * N + 3) / 4;
 		int256 _year = (4000 * (L + 1)) / 1461001;
@@ -90,17 +91,18 @@ contract QueryNpmDownloads is Timebased, usingProvable {
 
 	function date(uint256 _start, uint256 _end)
 		private
+		view
 		returns (string memory start, string memory end)
 	{
-		uint120 startTime = timestamp(_start);
-		uint120 endTime = timestamp(_end);
+		uint256 startTime = timestamp(_start);
+		uint256 endTime = timestamp(_end);
 		(uint256 startY, uint256 startM, uint256 startD) = secondsToDate(
 			startTime
 		);
 		(uint256 endY, uint256 endM, uint256 endD) = secondsToDate(endTime);
-		string memory start = dateFormat(startY, startM, startD);
-		string memory end = dateFormat(endY, endM, endD);
-		return (start, end);
+		string memory startDate = dateFormat(startY, startM, startD);
+		string memory endDate = dateFormat(endY, endM, endD);
+		return (startDate, endDate);
 	}
 
 }
