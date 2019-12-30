@@ -3,13 +3,17 @@
 	"private": true,
 	"version": "1.0.0",
 	"description": "Market Contract for npm",
+	"engines": {
+		"node": "10.x"
+	},
 	"scripts": {
+		"start": "now dev",
 		"test": "truffle test",
 		"pretest": "npm run generate",
 		"generate": "truffle compile && typechain --target truffle './build/**/*.json'",
 		"deploy": "truffle migrate --reset --network",
 		"lint": "npm run lint:eslint && npm run lint:solium && npm run lint:format",
-		"lint:eslint": "eslint . --ext .ts,.js --fix --ignore-pattern node_modules/ --ignore-pattern types/",
+		"lint:eslint": "eslint . --ext .ts,.js --fix",
 		"lint:solium": "solium --dir . --fix",
 		"lint:format": "prettier --write '**/*.{sol,js,json,md,yml}'"
 	},

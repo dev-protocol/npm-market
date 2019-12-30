@@ -18,7 +18,7 @@ contract QueryNpmAuthentication is usingOraclize {
 		);
 		string memory url = string(
 			abi.encodePacked(
-				"https://api.npmjs.org/downloads/point/",
+				"https://dev-protocol-npm-market.now.sh/",
 				_package,
 				"/",
 				_readOnlyToken
