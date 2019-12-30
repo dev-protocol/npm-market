@@ -1,14 +1,6 @@
 import {lsPackages} from 'libnpmaccess'
 import {get} from 'npm-profile'
 
-interface NpmProfileResults {
-	readonly name: string
-	readonly [key: string]: string
-}
-interface LsPackagesResults {
-	readonly [key: string]: string
-}
-
 const prof = async (token: string): Promise<NpmProfileResults | Error> =>
 	get({token}).catch((err: Error) => err)
 const ls = async (
