@@ -5,18 +5,14 @@
 	"scripts": {
 		"start": "now dev",
 		"test": "ava",
+		"pretest": "npm run build",
 		"build": "tsc -p ./"
 	},
 	"ava": {
-		"compileEnhancements": false,
 		"files": [
-			"**/*.test.ts"
-		],
-		"extensions": [
-			"ts"
+			"**/*.test.js"
 		],
 		"require": [
-			"ts-node/register",
 			"esm"
 		]
 	},
@@ -37,7 +33,6 @@
 		"now": "^16.7.0",
 		"request": "^2.88.0",
 		"test-listen": "^1.1.0",
-		"ts-node": "^8.5.4",
 		"typescript": "^3.7.4"
 	}
 }

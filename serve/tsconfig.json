@@ -4,8 +4,8 @@
 		"moduleResolution": "node",
 		"module": "commonjs",
 		"strict": true,
-		"outDir": "public"
-	},
-	"include": ["**/*"],
-	"exclude": ["**/*.test.*"]
+		"outDir": "public",
+		"types": ["node"],
+		"skipLibCheck": true
+	}
 }
