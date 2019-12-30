@@ -3,9 +3,9 @@
 	"alias": "dev-protocol-npm-market",
 	"builds": [
 		{
-			"src": "src/index.js",
+			"src": "public/index.js",
 			"use": "@now/node"
 		}
 	],
-	"rewrites": [{"source": "(.*)", "destination": "src/index.js"}]
+	"rewrites": [{"source": "(.*)", "destination": "public/index.js"}]
 }
