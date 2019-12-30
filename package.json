@@ -7,7 +7,6 @@
 		"node": "10.x"
 	},
 	"scripts": {
-		"start": "now dev",
 		"test": "truffle test",
 		"pretest": "npm run generate",
 		"generate": "truffle compile && typechain --target truffle './build/**/*.json'",

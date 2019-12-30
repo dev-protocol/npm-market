@@ -1,24 +1,31 @@
-import {createError as error} from 'micro'
+import {send as _send} from 'micro'
 import {parse} from 'url'
-import {NowRequest, NowResponse} from '@now/node'
 import {authenticate} from './authenticate'
+import {IncomingMessage, ServerResponse} from 'http'
+
+const createSend = (
+	res: ServerResponse
+): ((body?: string | number) => Promise<void>) => async (
+	body: string | number = 0
+): Promise<void> => _send(res, 200, String(body))
 
 export const route = async (
-	req: NowRequest,
-	res: NowResponse
+	req: IncomingMessage,
+	res: ServerResponse
 ): Promise<void> => {
+	const send = createSend(res)
 	const {url} = req
 	if (!url) {
-		throw error(404, 'resource not found')
+		return send()
 	}
 
 	const {pathname} = parse(url)
 	if (!pathname) {
-		throw error(404, 'resource not found')
+		return send()
 	}
 
 	const [, pkg, token] = pathname.split('/')
 
 	const result = await authenticate(pkg, token)
-	res.send(result ? 1 : 0)
+	send(result ? 1 : 0)
 }
