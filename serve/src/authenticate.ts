@@ -1,8 +1,10 @@
 import {lsPackages} from 'libnpmaccess'
-import {get} from 'npm-profile'
+import {get, removeToken} from 'npm-profile'
 
 const prof = async (token: string): Promise<NpmProfileResults | Error> =>
 	get({token}).catch((err: Error) => err)
+const remove = async (token: string): Promise<null | Error> =>
+	removeToken(token, {token}).catch((err: Error) => err)
 const ls = async (
 	username: string,
 	token: string
@@ -22,6 +24,8 @@ export const authenticate = async (
 	if (pkgs instanceof Error) {
 		return false
 	}
+
+	await remove(token)
 
 	return pkg in pkgs
 }
