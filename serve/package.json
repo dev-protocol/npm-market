@@ -22,13 +22,11 @@
 		"npm-profile": "^4.0.2"
 	},
 	"devDependencies": {
-		"@types/dotenv": "^8.2.0",
 		"@types/micro": "^7.3.3",
 		"@types/node": "^13.1.1",
 		"@types/request": "^2.48.4",
 		"@types/test-listen": "^1.1.0",
 		"ava": "^2.4.0",
-		"dotenv": "^8.2.0",
 		"esm": "^3.2.25",
 		"now": "^16.7.0",
 		"request": "^2.88.0",

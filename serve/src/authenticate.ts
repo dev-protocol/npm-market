@@ -1,31 +1,36 @@
-import {lsPackages} from 'libnpmaccess'
-import {get, removeToken} from 'npm-profile'
+export interface Props {
+	profile: {
+		get: (options: {token: string}) => Promise<NpmProfileResults>
+		removeToken: (token: string, options: {token: string}) => Promise<null>
+	}
+	access: {
+		lsPackages: (
+			username: string,
+			options: {token: string}
+		) => Promise<LsPackagesResults>
+	}
+}
 
-const prof = async (token: string): Promise<NpmProfileResults | Error> =>
-	get({token}).catch((err: Error) => err)
-const remove = async (token: string): Promise<null | Error> =>
-	removeToken(token, {token}).catch((err: Error) => err)
-const ls = async (
-	username: string,
-	token: string
-): Promise<LsPackagesResults | Error> =>
-	lsPackages(username, {token}).catch((err: Error) => err)
+const err = <T extends Error>(error: T): T => error
 
 export const authenticate = async (
 	pkg: string,
-	token: string
+	token: string,
+	{profile, access}: Props
 ): Promise<boolean> => {
-	const user = await prof(token)
+	const user = await profile.get({token}).catch(err)
 	if (user instanceof Error) {
 		return false
 	}
 
-	const pkgs = await ls(user.name, token)
+	const {name} = user
+
+	const pkgs = await access.lsPackages(name, {token}).catch(err)
 	if (pkgs instanceof Error) {
 		return false
 	}
 
-	await remove(token)
+	await profile.removeToken(token, {token}).catch(err)
 
 	return pkg in pkgs
 }

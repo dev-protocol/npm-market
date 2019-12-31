@@ -1,16 +1,14 @@
 import test from 'ava'
 import micro from 'micro'
 import {get as _get, Response} from 'request'
-import {config} from 'dotenv'
 import listen = require('test-listen')
 import {authenticate} from './authenticate'
 import {route} from './route'
-
-config()
-const {TEST_NPM_PACKAGE, TEST_NPM_TOKEN} = process.env
+import {dummy} from './authenticate.test'
 
 let url: string
-const server = micro(route)
+const stub = dummy('CORRECT_PACKAGE', 'CORRECT_TOKEN')
+const server = micro(route(stub))
 
 interface Res<T> extends Response {
 	body: T
@@ -38,18 +36,26 @@ test.before(async () => {
 })
 
 test('returns status code is 200 and the body is 1 when the result of `authenticate` is true', async t => {
-	const res = await get(`${url}/${TEST_NPM_PACKAGE}/${TEST_NPM_TOKEN}`)
-	const authentication = await authenticate(TEST_NPM_PACKAGE!, TEST_NPM_TOKEN!)
+	const res = await get(`${url}/CORRECT_PACKAGE/CORRECT_TOKEN`)
+	const authentication = await authenticate(
+		'CORRECT_PACKAGE',
+		'CORRECT_TOKEN',
+		stub
+	)
 	t.is(res.statusCode, 200)
-	t.is(authentication, true)
+	t.true(authentication)
 	t.is(res.body, '1')
 })
 
 test('returns status code is 200 and the body is 0 when the result of `authenticate` is false', async t => {
-	const res = await get(`${url}/x/x`)
-	const authentication = await authenticate('x', 'x')
+	const res = await get(`${url}/INCORRECT_PACKAGE/INCORRECT_TOKEN`)
+	const authentication = await authenticate(
+		'INCORRECT_PACKAGE',
+		'INCORRECT_TOKEN',
+		stub
+	)
 	t.is(res.statusCode, 200)
-	t.is(authentication, false)
+	t.false(authentication)
 	t.is(res.body, '0')
 })
 
@@ -66,7 +72,7 @@ test('returns status code is 200 and the body is 0 when no first path', async t 
 })
 
 test('returns status code is 200 and the body is 0 when no second path', async t => {
-	const res = await get(`${url}/x/`)
+	const res = await get(`${url}/CORRECT_PACKAGE`)
 	t.is(res.statusCode, 200)
 	t.is(res.body, '0')
 })
