@@ -1,14 +1,9 @@
+import * as profile from 'npm-profile'
+import * as access from 'libnpmaccess'
+
 export interface Props {
-	profile: {
-		get: (options: {token: string}) => Promise<NpmProfileResults>
-		removeToken: (token: string, options: {token: string}) => Promise<null>
-	}
-	access: {
-		lsPackages: (
-			username: string,
-			options: {token: string}
-		) => Promise<LsPackagesResults>
-	}
+	profile: typeof profile
+	access: typeof access
 }
 
 const err = <T extends Error>(error: T): T => error
