@@ -2,9 +2,10 @@ pragma solidity ^0.5.0;
 
 import {QueryNpmAuthentication} from "./QueryNpmAuthentication.sol";
 import {QueryNpmDownloads} from "./QueryNpmDownloads.sol";
+import {IMarket} from "@dev-protocol/protocol/contracts/src/market/IMarket.sol";
 
 contract OraclizeTest {
-	address public owner;
+	address payable public owner;
 	event OraclizeQuery(string _f, string _a);
 
 	constructor() public {
@@ -21,10 +22,26 @@ contract OraclizeTest {
 		emit OraclizeQuery(_f, _a);
 		return "query_id";
 	}
-	function oraclize_cbAddress() internal view returns (address) {
+	function oraclize_cbAddress() internal returns (address) {
 		return owner;
 	}
 }
 
 contract QueryNpmAuthenticationTest is OraclizeTest, QueryNpmAuthentication {}
 contract QueryNpmDownloadsTest is OraclizeTest, QueryNpmDownloads {}
+
+contract Market is IMarket {
+	address public lastProperty;
+	address public lastMetricsAddress;
+	uint256 public lastMetricsValue;
+
+	function authenticatedCallback(address _prop) public returns (address) {
+		lastProperty = _prop;
+		return _prop;
+	}
+
+	function calculatedCallback(address _metrics, uint256 _value) public {
+		lastMetricsAddress = _metrics;
+		lastMetricsValue = _value;
+	}
+}
