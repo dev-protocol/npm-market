@@ -1,12 +1,14 @@
 pragma solidity ^0.5.0;
 
-import "./module/provableAPI.sol";
+import {UsingProvable} from "./lib/UsingProvable.sol";
+import {usingProvable} from "./module/provableAPI.sol";
 import {Timebased} from "./lib/Timebased.sol";
 import {UintToString} from "./lib/UintToString.sol";
 import {StringToUint} from "./lib/StringToUint.sol";
 import {NpmMarket} from "./NpmMarket.sol";
+import {Chargeable} from "./lib/Chargeable.sol";
 
-contract QueryNpmDownloads is Timebased, usingOraclize {
+contract QueryNpmDownloadsCore is UsingProvable, Chargeable, Timebased {
 	using UintToString for uint256;
 	using StringToUint for string;
 	mapping(bytes32 => address) internal callbackDestinations;
@@ -17,7 +19,7 @@ contract QueryNpmDownloads is Timebased, usingOraclize {
 		string calldata _package
 	) external returns (bytes32) {
 		require(
-			oraclize_getPrice("URL") > address(this).balance,
+			provable_getPrice("URL") < totalCharged,
 			"Calculation query was NOT sent"
 		);
 		(string memory start, string memory end) = date(_startTime, _endTime);
@@ -34,14 +36,14 @@ contract QueryNpmDownloads is Timebased, usingOraclize {
 		string memory param = string(
 			abi.encodePacked("json(", url, ").downloads")
 		);
-		bytes32 id = oraclize_query("URL", param);
+		bytes32 id = provable_query("URL", param);
 		callbackDestinations[id] = msg.sender;
 		return id;
 	}
 
 	// It is expected to be called by [Oraclize](https://docs.oraclize.it/#ethereum-quick-start).
 	function __callback(bytes32 _id, string memory _result) public {
-		if (msg.sender != oraclize_cbAddress()) {
+		if (msg.sender != provable_cbAddress()) {
 			revert("mismatch oraclize_cbAddress");
 		}
 		address callback = callbackDestinations[_id];
@@ -107,3 +109,5 @@ contract QueryNpmDownloads is Timebased, usingOraclize {
 	}
 
 }
+
+contract QueryNpmDownloads is QueryNpmDownloadsCore, usingProvable {}

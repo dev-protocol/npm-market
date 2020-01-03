@@ -1,10 +1,12 @@
 pragma solidity ^0.5.0;
 
-import "./module/provableAPI.sol";
+import {UsingProvable} from "./lib/UsingProvable.sol";
+import {usingProvable} from "./module/provableAPI.sol";
 import {StringToUint} from "./lib/StringToUint.sol";
 import {NpmMarket} from "./NpmMarket.sol";
+import {Chargeable} from "./lib/Chargeable.sol";
 
-contract QueryNpmAuthentication is usingOraclize {
+contract QueryNpmAuthenticationCore is UsingProvable, Chargeable {
 	using StringToUint for string;
 	mapping(bytes32 => address) internal callbackDestinations;
 
@@ -13,7 +15,7 @@ contract QueryNpmAuthentication is usingOraclize {
 		returns (bytes32)
 	{
 		require(
-			oraclize_getPrice("URL") > address(this).balance,
+			provable_getPrice("URL") < totalCharged,
 			"Calculation query was NOT sent"
 		);
 		string memory url = string(
@@ -24,17 +26,21 @@ contract QueryNpmAuthentication is usingOraclize {
 				_readOnlyToken
 			)
 		);
-		bytes32 id = oraclize_query("URL", url);
+		bytes32 id = provable_query("URL", url);
 		callbackDestinations[id] = msg.sender;
 		return id;
 	}
 
 	// It is expected to be called by [Oraclize](https://docs.oraclize.it/#ethereum-quick-start).
 	function __callback(bytes32 _id, string memory _result) public {
-		if (msg.sender != oraclize_cbAddress()) {
+		if (msg.sender != provable_cbAddress()) {
 			revert("mismatch oraclize_cbAddress");
 		}
 		address callback = callbackDestinations[_id];
 		NpmMarket(callback).authenticated(_id, _result);
 	}
+}
+
+contract QueryNpmAuthentication is QueryNpmAuthenticationCore, usingProvable {
+	constructor() public usingProvable() {}
 }
