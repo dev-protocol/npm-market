@@ -1,6 +1,6 @@
 interface NpmProfileResults {
-	readonly name: string
 	readonly [key: string]: string
+	readonly name: string
 }
 
 declare module 'npm-profile' {
