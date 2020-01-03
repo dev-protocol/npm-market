@@ -3,8 +3,9 @@
 require('ts-node/register')
 require('dotenv').config()
 const HDWalletProvider = require('truffle-hdwallet-provider')
-const {ETHEREUM_PROVIDERS_AZURE, ETHEREUM_WALLET_MNEMONIC} = process.env
+const {ETHEREUM_PROVIDERS_ROPSTEN, ETHEREUM_WALLET_MNEMONIC} = process.env
 
+console.log('*', ETHEREUM_WALLET_MNEMONIC)
 module.exports = {
 	test_file_extension_regexp: /.*\.ts$/,
 	compilers: {
@@ -13,15 +14,14 @@ module.exports = {
 		}
 	},
 	networks: {
-		azure: {
+		ropsten: {
 			provider: () =>
 				new HDWalletProvider(
 					ETHEREUM_WALLET_MNEMONIC,
-					ETHEREUM_PROVIDERS_AZURE
+					ETHEREUM_PROVIDERS_ROPSTEN
 				),
-			network_id: '*',
-			gas: 0,
-			gasPrice: 0
+			network_id: 3,
+			gas: 4700000
 		}
 	}
 }
