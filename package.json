@@ -7,7 +7,7 @@
 		"node": "10.x"
 	},
 	"scripts": {
-		"test": "ETH_NETWORK=test truffle test",
+		"test": "LOCAL=true truffle test",
 		"pretest": "npm run generate",
 		"generate": "truffle compile && typechain --target truffle './build/**/*.json'",
 		"deploy": "truffle migrate --reset --network",
