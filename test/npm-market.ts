@@ -1,5 +1,8 @@
 import {utils} from 'ethers'
 const contracts = artifacts.require
+const network = process.env.ETH_NETWORK ?? 'test'
+
+console.log(`The current using network is '${network}'.`)
 
 contract('NpmMarket', ([deployer, property]) => {
 	describe('authenticate', () => {
