@@ -5,7 +5,6 @@ require('dotenv').config()
 const HDWalletProvider = require('truffle-hdwallet-provider')
 const {ETHEREUM_PROVIDERS_ROPSTEN, ETHEREUM_WALLET_MNEMONIC} = process.env
 
-console.log('*', ETHEREUM_WALLET_MNEMONIC)
 module.exports = {
 	test_file_extension_regexp: /.*\.ts$/,
 	compilers: {
