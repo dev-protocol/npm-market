@@ -1,7 +1,5 @@
 pragma solidity ^0.5.0;
 
-import {QueryNpmAuthentication} from "./QueryNpmAuthentication.sol";
-import {QueryNpmDownloads} from "./QueryNpmDownloads.sol";
 // prettier-ignore
 import {IMarketBehavior} from "@dev-protocol/protocol/contracts/src/market/IMarketBehavior.sol";
 

@@ -1,6 +1,5 @@
 pragma solidity ^0.5.0;
 
-import {UsingProvable} from "./lib/UsingProvable.sol";
 import {usingProvable} from "./module/provableAPI.sol";
 import {NpmMarket} from "./NpmMarket.sol";
 import {Chargeable} from "./lib/Chargeable.sol";
