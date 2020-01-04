@@ -8,7 +8,9 @@
 	},
 	"scripts": {
 		"test": "LOCAL=true truffle test",
+		"test-with": "truffle test --network",
 		"pretest": "npm run generate",
+		"pretest-with": "npm run generate",
 		"generate": "truffle compile && typechain --target truffle './build/**/*.json'",
 		"deploy": "truffle migrate --reset --network",
 		"predeploy": "npm run build",
