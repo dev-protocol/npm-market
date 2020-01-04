@@ -59,6 +59,12 @@ test('returns status code is 200 and the body is 0 when the result of `authentic
 	t.is(res.body, '0')
 })
 
+test('returns status code is 200 and the body is 1 when the request path is `/:TEST_PACKAGE:/:TEST_TOKEN:`', async t => {
+	const res = await get(`${url}/:TEST_PACKAGE:/:TEST_TOKEN:`)
+	t.is(res.statusCode, 200)
+	t.is(res.body, '1')
+})
+
 test('returns status code is 200 and the body is 0 when no pathname', async t => {
 	const res = await get(`${url}`)
 	t.is(res.statusCode, 200)

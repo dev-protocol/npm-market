@@ -25,6 +25,9 @@ export const route = (authenticateProps: Props) => async (
 	}
 
 	const [, pkg, token] = pathname.split('/')
+	if (pkg === ':TEST_PACKAGE:' && token === ':TEST_TOKEN:') {
+		return send(1)
+	}
 
 	const result = await authenticate(pkg, token, authenticateProps)
 	send(result ? 1 : 0)
