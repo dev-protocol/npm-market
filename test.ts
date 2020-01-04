@@ -1,30 +1,40 @@
-import {exec} from 'child_process'
+import {ChildProcess, spawn} from 'child_process'
+
+const waitForStdOut = async (cp: ChildProcess, txt: string): Promise<void> =>
+	new Promise(resolve => {
+		const handler = (data: Buffer): void => {
+			console.log(data.toString())
+			if (data.includes(txt)) {
+				cp.stdout.off('data', handler)
+				resolve()
+			}
+		}
+
+		cp.stdout.on('data', handler)
+	})
+const kill = (cp: ChildProcess): void => process.kill(cp.pid)
 ;(async () => {
-	const ganache = exec('npx ganache-cli -p 7545')
-	await new Promise(resolve => {
-		const handler = (data: string): void => {
-			console.log(data)
-			if (data.includes('Listening on 127.0.0.1:7545')) {
-				ganache.stdout.off('data', handler)
-				resolve()
-			}
-		}
+	const ganache = spawn('npx', ['ganache-cli', '-p', '7545'])
+	await waitForStdOut(ganache, 'Listening on 127.0.0.1:7545')
 
-		ganache.stdout.on('data', handler)
-	})
-	console.log('ganache is launched')
-	const bridge = exec('npx ethereum-bridge -a 9 -H 127.0.0.1 -p 7545 --dev')
-	await new Promise(resolve => {
-		const handler = (data: string): void => {
-			console.log(data)
-			if (data.includes('Ctrl+C to exit')) {
-				resolve()
-			}
-		}
+	const bridge = spawn('npx', [
+		'ethereum-bridge',
+		'-a',
+		'9',
+		'-H',
+		'127.0.0.1',
+		'-p',
+		'7545',
+		'--dev'
+	])
+	await waitForStdOut(bridge, 'Ctrl+C to exit')
 
-		bridge.stdout.on('data', handler)
+	const test = spawn('npx', ['truffle', 'test', '--network', 'ganache'])
+	const handler = (data: Buffer): void => console.log(data.toString())
+	test.stdout.on('data', handler)
+	test.on('exit', () => {
+		kill(bridge)
+		kill(ganache)
+		test.stdout.off('data', handler)
 	})
-	console.log('ethereum-bridge is launched')
-	const test = exec('truffle test --network ganache')
-	test.stdout.on('data', data => console.log(data))
 })()
