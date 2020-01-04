@@ -16,7 +16,7 @@ contract QueryNpmDownloads is usingProvable, Chargeable, Timebased {
 		string calldata _package
 	) external returns (bytes32) {
 		require(
-			provable_getPrice("URL") < totalCharged(),
+			provable_getPrice("URL") < charged(),
 			"Calculation query was NOT sent"
 		);
 		(string memory start, string memory end) = date(_startTime, _endTime);

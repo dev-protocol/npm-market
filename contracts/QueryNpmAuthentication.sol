@@ -12,7 +12,7 @@ contract QueryNpmAuthentication is usingProvable, Chargeable {
 		returns (bytes32)
 	{
 		require(
-			provable_getPrice("URL") < totalCharged(),
+			provable_getPrice("URL") < charged(),
 			"Calculation query was NOT sent"
 		);
 		string memory url = string(

@@ -9,7 +9,13 @@ module.exports = {
 	test_file_extension_regexp: /.*\.ts$/,
 	compilers: {
 		solc: {
-			version: '^0.5.9'
+			version: '^0.5.16',
+			settings: {
+				optimizer: {
+					enabled: true
+				},
+				evmVersion: 'petersburg'
+			}
 		}
 	},
 	networks: {
