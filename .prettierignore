@@ -2,3 +2,4 @@ build
 contracts/module
 serve/**/*.js
 migrations/**/*.js
+test.js

@@ -7,10 +7,8 @@
 		"node": "10.x"
 	},
 	"scripts": {
-		"test": "LOCAL=true truffle test",
-		"test-with": "truffle test --network",
-		"pretest": "npm run generate",
-		"pretest-with": "npm run generate",
+		"test": "node ./test",
+		"pretest": "npm run build",
 		"generate": "truffle compile && typechain --target truffle './build/**/*.json'",
 		"deploy": "truffle migrate --reset --network",
 		"predeploy": "npm run build",
@@ -19,9 +17,7 @@
 		"lint:solium": "solium --dir . --fix",
 		"lint:format": "prettier --write '**/*.{sol,js,json,md,yml}'",
 		"build": "tsc -p tsconfig.build.json",
-		"prebuild": "npm run generate",
-		"ganache": "ganache-cli -p 7545",
-		"bridge": "ethereum-bridge -a 9 -H 127.0.0.1 -p 7545 --dev"
+		"prebuild": "npm run generate"
 	},
 	"author": "",
 	"license": "MPL-2.0",
@@ -36,7 +32,6 @@
 		"eslint-config-xo-typescript": "^0.24.1",
 		"eslint-plugin-prettier": "^3.1.2",
 		"ethereum-bridge": "^0.6.2",
-		"ethers": "^4.0.41",
 		"ethlint": "^1.2.5",
 		"ganache-cli": "^6.7.0",
 		"husky": "^3.1.0",

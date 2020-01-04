@@ -4,38 +4,6 @@ import {QueryNpmAuthentication} from "./QueryNpmAuthentication.sol";
 import {QueryNpmDownloads} from "./QueryNpmDownloads.sol";
 // prettier-ignore
 import {IMarketBehavior} from "@dev-protocol/protocol/contracts/src/market/IMarketBehavior.sol";
-import {QueryNpmAuthentication} from "./QueryNpmAuthentication.sol";
-import {QueryNpmDownloads} from "./QueryNpmDownloads.sol";
-
-contract ProvableTest {
-	address payable public owner;
-	event ProvableQuery(string _f, string _a);
-
-	constructor() public {
-		owner = msg.sender;
-	}
-
-	function provable_getPrice() internal pure returns (uint256) {
-		return 1;
-	}
-	function provable_query(string memory _f, string memory _a)
-		internal
-		returns (bytes32)
-	{
-		emit ProvableQuery(_f, _a);
-		return "query_id";
-	}
-	function provable_cbAddress() internal returns (address) {
-		return owner;
-	}
-}
-
-contract QueryNpmAuthenticationTest is QueryNpmAuthentication, ProvableTest {
-	constructor() public ProvableTest() {}
-}
-contract QueryNpmDownloadsTest is QueryNpmDownloads, ProvableTest {
-	constructor() public ProvableTest() {}
-}
 
 contract Market {
 	address public behavior;

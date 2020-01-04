@@ -1,21 +1,11 @@
-import {utils} from 'ethers'
 import {waitForMutation} from './utils'
 const contracts = artifacts.require
-const isLocal = process.env.LOCAL ?? false
-
-console.log(`The current using network is ${isLocal ? 'local' : 'not local'}.`)
 
 contract('NpmMarket', ([deployer]) => {
 	describe('authenticate', () => {
 		it('authenticate npm package and calling Market.authenticatedCallback', async () => {
-			const queryAuthn = await (isLocal
-				? contracts('QueryNpmAuthenticationTest')
-				: contracts('QueryNpmAuthentication')
-			).new()
-			const queryDownloads = await (isLocal
-				? contracts('QueryNpmDownloadsTest')
-				: contracts('QueryNpmDownloads')
-			).new()
+			const queryAuthn = await contracts('QueryNpmAuthentication').new()
+			const queryDownloads = await contracts('QueryNpmDownloads').new()
 			const npm = await contracts('NpmMarket').new(
 				queryAuthn.address,
 				queryDownloads.address
@@ -35,9 +25,6 @@ contract('NpmMarket', ([deployer]) => {
 				'',
 				''
 			)
-			if (isLocal) {
-				await queryAuthn.__callback(utils.formatBytes32String('query_id'), '1')
-			}
 
 			await waitForMutation(
 				async () => (await market.lastProperty()) === property,

@@ -2,3 +2,4 @@ node_modules/
 types/
 serve/**/*.js
 migrations/**/*.js
+test.js
