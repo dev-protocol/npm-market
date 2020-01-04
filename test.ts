@@ -14,9 +14,11 @@ const waitForStdOut = async (cp: ChildProcess, txt: string): Promise<void> =>
 	})
 const kill = (cp: ChildProcess): void => process.kill(cp.pid)
 ;(async () => {
+	// Launch ganache
 	const ganache = spawn('npx', ['ganache-cli', '-p', '7545'])
 	await waitForStdOut(ganache, 'Listening on 127.0.0.1:7545')
 
+	// Launch ethereum-bridge
 	const bridge = spawn('npx', [
 		'ethereum-bridge',
 		'-a',
@@ -29,6 +31,7 @@ const kill = (cp: ChildProcess): void => process.kill(cp.pid)
 	])
 	await waitForStdOut(bridge, 'Ctrl+C to exit')
 
+	// Run tests
 	const test = spawn('npx', ['truffle', 'test', '--network', 'ganache'])
 	const handler = (data: Buffer): void => console.log(data.toString())
 	test.stdout.on('data', handler)
