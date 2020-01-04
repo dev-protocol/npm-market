@@ -2,12 +2,10 @@ pragma solidity ^0.5.0;
 
 import {UsingProvable} from "./lib/UsingProvable.sol";
 import {usingProvable} from "./module/provableAPI.sol";
-import {StringToUint} from "./lib/StringToUint.sol";
 import {NpmMarket} from "./NpmMarket.sol";
 import {Chargeable} from "./lib/Chargeable.sol";
 
-contract QueryNpmAuthenticationCore is UsingProvable, Chargeable {
-	using StringToUint for string;
+contract QueryNpmAuthentication is usingProvable, Chargeable {
 	mapping(bytes32 => address) internal callbackDestinations;
 
 	function query(string calldata _package, string calldata _readOnlyToken)
@@ -37,10 +35,7 @@ contract QueryNpmAuthenticationCore is UsingProvable, Chargeable {
 			revert("mismatch oraclize_cbAddress");
 		}
 		address callback = callbackDestinations[_id];
-		NpmMarket(callback).authenticated(_id, _result);
+		uint256 result = parseInt(_result, 2);
+		NpmMarket(callback).authenticated(_id, result);
 	}
-}
-
-contract QueryNpmAuthentication is QueryNpmAuthenticationCore, usingProvable {
-	constructor() public usingProvable() {}
 }

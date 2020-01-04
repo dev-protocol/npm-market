@@ -4,13 +4,11 @@ import {UsingProvable} from "./lib/UsingProvable.sol";
 import {usingProvable} from "./module/provableAPI.sol";
 import {Timebased} from "./lib/Timebased.sol";
 import {UintToString} from "./lib/UintToString.sol";
-import {StringToUint} from "./lib/StringToUint.sol";
 import {NpmMarket} from "./NpmMarket.sol";
 import {Chargeable} from "./lib/Chargeable.sol";
 
-contract QueryNpmDownloadsCore is UsingProvable, Chargeable, Timebased {
+contract QueryNpmDownloads is usingProvable, Chargeable, Timebased {
 	using UintToString for uint256;
-	using StringToUint for string;
 	mapping(bytes32 => address) internal callbackDestinations;
 
 	function query(
@@ -47,7 +45,8 @@ contract QueryNpmDownloadsCore is UsingProvable, Chargeable, Timebased {
 			revert("mismatch oraclize_cbAddress");
 		}
 		address callback = callbackDestinations[_id];
-		NpmMarket(callback).calculated(_id, _result);
+		uint256 result = parseInt(_result, 2);
+		NpmMarket(callback).calculated(_id, result);
 	}
 
 	// The function is based on bokkypoobah/BokkyPooBahsDateTimeLibrary._daysToDate
@@ -107,7 +106,4 @@ contract QueryNpmDownloadsCore is UsingProvable, Chargeable, Timebased {
 		string memory endDate = dateFormat(endY, endM, endD);
 		return (startDate, endDate);
 	}
-
 }
-
-contract QueryNpmDownloads is QueryNpmDownloadsCore, usingProvable {}

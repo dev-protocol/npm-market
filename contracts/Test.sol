@@ -4,8 +4,8 @@ import {QueryNpmAuthentication} from "./QueryNpmAuthentication.sol";
 import {QueryNpmDownloads} from "./QueryNpmDownloads.sol";
 // prettier-ignore
 import {IMarketBehavior} from "@dev-protocol/protocol/contracts/src/market/IMarketBehavior.sol";
-import {QueryNpmAuthenticationCore} from "./QueryNpmAuthentication.sol";
-import {QueryNpmDownloadsCore} from "./QueryNpmDownloads.sol";
+import {QueryNpmAuthentication} from "./QueryNpmAuthentication.sol";
+import {QueryNpmDownloads} from "./QueryNpmDownloads.sol";
 
 contract ProvableTest {
 	address payable public owner;
@@ -30,13 +30,10 @@ contract ProvableTest {
 	}
 }
 
-contract QueryNpmAuthenticationTest is
-	QueryNpmAuthenticationCore,
-	ProvableTest
-{
+contract QueryNpmAuthenticationTest is QueryNpmAuthentication, ProvableTest {
 	constructor() public ProvableTest() {}
 }
-contract QueryNpmDownloadsTest is QueryNpmDownloadsCore, ProvableTest {
+contract QueryNpmDownloadsTest is QueryNpmDownloads, ProvableTest {
 	constructor() public ProvableTest() {}
 }
 

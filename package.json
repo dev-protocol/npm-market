@@ -19,7 +19,9 @@
 		"lint:solium": "solium --dir . --fix",
 		"lint:format": "prettier --write '**/*.{sol,js,json,md,yml}'",
 		"build": "tsc -p tsconfig.build.json",
-		"prebuild": "npm run generate"
+		"prebuild": "npm run generate",
+		"ganache": "ganache-cli -p 7545",
+		"bridge": "ethereum-bridge -a 9 -H 127.0.0.1 -p 7545 --dev"
 	},
 	"author": "",
 	"license": "MPL-2.0",
@@ -33,8 +35,10 @@
 		"eslint-config-xo": "^0.27.2",
 		"eslint-config-xo-typescript": "^0.24.1",
 		"eslint-plugin-prettier": "^3.1.2",
+		"ethereum-bridge": "^0.6.2",
 		"ethers": "^4.0.41",
 		"ethlint": "^1.2.5",
+		"ganache-cli": "^6.7.0",
 		"husky": "^3.1.0",
 		"prettier": "^1.19.1",
 		"prettier-plugin-solidity": "^1.0.0-alpha.35",
@@ -45,7 +49,8 @@
 		"ts-node": "^8.5.4",
 		"typechain": "^1.0.3",
 		"typechain-target-truffle": "^1.0.2",
-		"typescript": "^3.7.4"
+		"typescript": "^3.7.4",
+		"web3": "^1.2.4"
 	},
 	"husky": {
 		"hooks": {

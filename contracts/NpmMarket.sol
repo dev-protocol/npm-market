@@ -5,10 +5,8 @@ import {IMarket} from "@dev-protocol/protocol/contracts/src/market/IMarket.sol";
 import {IAllocator} from "@dev-protocol/protocol/contracts/src/allocator/IAllocator.sol";
 import {QueryNpmAuthentication} from "./QueryNpmAuthentication.sol";
 import {QueryNpmDownloads} from "./QueryNpmDownloads.sol";
-import {StringToUint} from "./lib/StringToUint.sol";
 
 contract NpmMarket {
-	using StringToUint for string;
 	string public schema = "['npm package', 'npm read-only token']";
 	address public queryNpmAuthentication;
 	address public queryNpmDownloads;
@@ -46,10 +44,9 @@ contract NpmMarket {
 		return true;
 	}
 
-	function authenticated(bytes32 _id, string calldata _result) external {
+	function authenticated(bytes32 _id, uint256 _result) external {
 		address property = pendingAuthentication[_id];
-		uint256 result = _result.toUint(0);
-		if (result == 0) {
+		if (_result == 0) {
 			return;
 		}
 		address dest = callbackMarket[_id];
@@ -75,12 +72,11 @@ contract NpmMarket {
 		return true;
 	}
 
-	function calculated(bytes32 _id, string calldata _result) external {
+	function calculated(bytes32 _id, uint256 _result) external {
 		address metrics = pendingMetrics[_id];
-		uint256 count = _result.toUint(0);
 		address dest = callbackAllocator[_id];
 		delete pendingMetrics[_id];
 		delete callbackAllocator[_id];
-		IAllocator(dest).calculatedCallback(metrics, count);
+		IAllocator(dest).calculatedCallback(metrics, _result);
 	}
 }
