@@ -39,6 +39,7 @@ contract('NpmMarket', ([deployer]) => {
 		it(
 			'calculate downloads count of npm package during the passd period and calling Allocator.calculatedCallback'
 		)
+		it('calculate target period by the passed two block-number')
 		it('should fail to calculate when pass other than Metrics address')
 	})
 })
