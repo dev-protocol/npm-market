@@ -2,12 +2,10 @@ pragma solidity ^0.5.0;
 
 import {usingProvable} from "./module/provableAPI.sol";
 import {Timebased} from "./lib/Timebased.sol";
-import {UintToString} from "./lib/UintToString.sol";
 import {NpmMarket} from "./NpmMarket.sol";
 import {Chargeable} from "./lib/Chargeable.sol";
 
 contract QueryNpmDownloads is usingProvable, Chargeable, Timebased {
-	using UintToString for uint256;
 	mapping(bytes32 => address) internal callbackDestinations;
 
 	function query(
@@ -81,11 +79,11 @@ contract QueryNpmDownloads is usingProvable, Chargeable, Timebased {
 		return
 			string(
 				abi.encodePacked(
-					_y.toString(),
+					uint2str(_y),
 					"-",
-					_m.toString(),
+					uint2str(_m),
 					"-",
-					_d.toString()
+					uint2str(_d)
 				)
 			);
 	}
