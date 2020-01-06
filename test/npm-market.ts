@@ -1,45 +1,8 @@
 import BigNumber from 'bignumber.js'
 import {format} from 'date-fns'
 import * as rp from 'request-promise'
-import {waitForMutation} from './utils'
-import {
-	QueryNpmAuthenticationInstance,
-	QueryNpmDownloadsInstance,
-	NpmMarketInstance,
-	MarketInstance,
-	AllocatorInstance
-} from '../types/truffle-contracts'
+import {waitForMutation, init} from './utils'
 const contracts = artifacts.require
-
-const init = async (
-	deployer: string
-): Promise<{
-	queryAuthn: QueryNpmAuthenticationInstance
-	queryDownloads: QueryNpmDownloadsInstance
-	npm: NpmMarketInstance
-	market: MarketInstance
-	allocator: AllocatorInstance
-}> => {
-	const queryAuthn = await contracts('QueryNpmAuthentication').new()
-	const queryDownloads = await contracts('QueryNpmDownloads').new()
-	const npm = await contracts('NpmMarket').new(
-		queryAuthn.address,
-		queryDownloads.address
-	)
-	const market = await contracts('Market').new(npm.address)
-	const allocator = await contracts('Allocator').new(npm.address)
-	await Promise.all([
-		queryAuthn.charge({
-			from: deployer,
-			value: '1000000000000000'
-		}),
-		queryDownloads.charge({
-			from: deployer,
-			value: '1000000000000000'
-		})
-	])
-	return {queryAuthn, queryDownloads, npm, market, allocator}
-}
 
 contract('NpmMarket', ([deployer]) => {
 	describe('authenticate', () => {
