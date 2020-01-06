@@ -3,7 +3,8 @@ import {
 	QueryNpmAuthenticationInstance,
 	QueryNpmDownloadsInstance,
 	NpmMarketInstance,
-	MarketInstance
+	MarketInstance,
+	AllocatorInstance
 } from '../types/truffle-contracts'
 const contracts = artifacts.require
 
@@ -14,6 +15,7 @@ const init = async (
 	queryDownloads: QueryNpmDownloadsInstance
 	npm: NpmMarketInstance
 	market: MarketInstance
+	allocator: AllocatorInstance
 }> => {
 	const queryAuthn = await contracts('QueryNpmAuthentication').new()
 	const queryDownloads = await contracts('QueryNpmDownloads').new()
@@ -22,6 +24,7 @@ const init = async (
 		queryDownloads.address
 	)
 	const market = await contracts('Market').new(npm.address)
+	const allocator = await contracts('Allocator').new(npm.address)
 	await Promise.all([
 		queryAuthn.charge({
 			from: deployer,
@@ -32,7 +35,7 @@ const init = async (
 			value: '1000000000000000'
 		})
 	])
-	return {queryAuthn, queryDownloads, npm, market}
+	return {queryAuthn, queryDownloads, npm, market, allocator}
 }
 
 contract('NpmMarket', ([deployer]) => {
@@ -79,9 +82,47 @@ contract('NpmMarket', ([deployer]) => {
 		})
 	})
 	describe('calculate', () => {
-		it(
-			'calculate downloads count of npm package during the passd period and calling Allocator.calculatedCallback'
-		)
+		const prepare = async (
+			deployer: string,
+			propertyAsMetrics: string
+		): ReturnType<typeof init> => {
+			const _contracts = await init(deployer)
+
+			await _contracts.market.authenticate(
+				propertyAsMetrics,
+				':TEST_PACKAGE:',
+				':TEST_TOKEN:',
+				'',
+				'',
+				''
+			)
+			await waitForMutation(
+				async () =>
+					(await _contracts.market.lastProperty()) === propertyAsMetrics
+			)
+			return _contracts
+		}
+
+		it('calculate downloads count of npm package during the passd period and calling Allocator.calculatedCallback', async () => {
+			const {allocator, queryDownloads} = await prepare(
+				deployer,
+				'0x1D03CE5922e82763a9b57c63F801BD8082C32378'
+			)
+			const metrics = '0x1D03CE5922e82763a9b57c63F801BD8082C32378'
+
+			const {1: _block} = await queryDownloads.getBaseTime()
+			const block = _block.toNumber()
+			const DaysLater30 = block + (87400 * 30) / 15
+			await allocator.allocate(metrics, block, DaysLater30)
+
+			await waitForMutation(
+				async () => (await allocator.lastMetricsAddress()) === metrics
+			)
+			expect(await allocator.lastMetricsAddress()).to.be.equal(metrics)
+			expect(
+				await allocator.lastMetricsValue().then(x => x.toNumber())
+			).to.be.equal(0)
+		})
 		it('calculate target period by the passed two block-number')
 		it('should fail to calculate when pass other than Metrics address')
 	})

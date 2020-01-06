@@ -22,7 +22,7 @@ contract Timebased is Ownable {
 	}
 
 	function timestamp(uint256 _blockNumber) public view returns (uint256) {
-		uint256 diff = _blockNumber - baseTime.blockHeight;
+		uint256 diff = _blockNumber.sub(baseTime.blockHeight);
 		uint256 sec = diff.mul(secondsPerBlock);
 		return baseTime.timestamp.add(sec);
 	}
@@ -32,6 +32,15 @@ contract Timebased is Ownable {
 		view
 		returns (uint256 _timestamp, uint256 _blockHeight)
 	{
+		return (baseTime.timestamp, baseTime.blockHeight);
+	}
+
+	function setBaseTime()
+		public
+		onlyOwner
+		returns (uint256 _timestamp, uint256 _blockHeight)
+	{
+		baseTime = BaseTime(_timestamp, _blockHeight);
 		return (baseTime.timestamp, baseTime.blockHeight);
 	}
 }
