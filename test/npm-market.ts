@@ -33,7 +33,7 @@ contract('NpmMarket', ([deployer]) => {
 
 			expect(await market.lastProperty()).to.be.equal(property)
 		})
-		it('should fail to authenticate npm package when invalid read-only token')
+		it('should fail to authenticate npm package when invalid token')
 	})
 	describe('calculate', () => {
 		it(

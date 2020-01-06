@@ -7,7 +7,7 @@ import {QueryNpmAuthentication} from "./QueryNpmAuthentication.sol";
 import {QueryNpmDownloads} from "./QueryNpmDownloads.sol";
 
 contract NpmMarket {
-	string public schema = "['npm package', 'npm read-only token']";
+	string public schema = "['npm package', 'npm token']";
 	address public queryNpmAuthentication;
 	address public queryNpmDownloads;
 
