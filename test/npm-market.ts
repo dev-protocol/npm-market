@@ -89,6 +89,5 @@ contract('NpmMarket', ([deployer]) => {
 				await allocator.lastMetricsValue().then((x: BigNumber) => x.toNumber())
 			).to.be.equal(api.downloads)
 		})
-		it('should fail to calculate when pass other than Metrics address')
 	})
 })
