@@ -46,15 +46,16 @@ contract NpmMarket {
 
 	function authenticated(bytes32 _id, uint256 _result) external {
 		address property = pendingAuthentication[_id];
+		address dest = callbackMarket[_id];
+		string memory package = pendingAuthenticationPackage[_id];
+		delete pendingAuthentication[_id];
+		delete callbackMarket[_id];
+		delete pendingAuthenticationPackage[_id];
 		if (_result == 0) {
 			return;
 		}
-		address dest = callbackMarket[_id];
-		delete pendingAuthentication[_id];
-		delete callbackMarket[_id];
 		address metrics = IMarket(dest).authenticatedCallback(property);
-		packages[metrics] = pendingAuthenticationPackage[_id];
-		delete pendingAuthenticationPackage[_id];
+		packages[metrics] = package;
 	}
 
 	function calculate(address _metrics, uint256 _start, uint256 _end)
