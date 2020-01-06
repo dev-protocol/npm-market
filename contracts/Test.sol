@@ -58,7 +58,10 @@ contract Allocator {
 }
 
 contract NpmMarketTest is NpmMarket {
-	constructor(address _queryNpmAuthentication, address _queryNpmDownloads) public NpmMarket(_queryNpmAuthentication, _queryNpmDownloads) {}
+	constructor(address _queryNpmAuthentication, address _queryNpmDownloads)
+		public
+		NpmMarket(_queryNpmAuthentication, _queryNpmDownloads)
+	{}
 
 	function setPackages(string memory _pkg, address _metrics) public {
 		packages[_metrics] = _pkg;

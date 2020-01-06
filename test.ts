@@ -12,6 +12,16 @@ const waitForStdOut = async (cp: ChildProcess, txt: string): Promise<void> =>
 
 		cp.stdout.on('data', handler)
 	})
+const waitForExit = async (cp: ChildProcess): Promise<void> =>
+	new Promise(resolve => {
+		const handler = (data: Buffer): void => console.log(data.toString())
+
+		cp.stdout.on('data', handler)
+		cp.on('exit', () => {
+			cp.stdout.off('data', handler)
+			resolve()
+		})
+	})
 const kill = (cp: ChildProcess): void => process.kill(cp.pid)
 ;(async () => {
 	// Launch ganache
@@ -33,11 +43,7 @@ const kill = (cp: ChildProcess): void => process.kill(cp.pid)
 
 	// Run tests
 	const test = spawn('npx', ['truffle', 'test', '--network', 'ganache'])
-	const handler = (data: Buffer): void => console.log(data.toString())
-	test.stdout.on('data', handler)
-	test.on('exit', () => {
-		kill(bridge)
-		kill(ganache)
-		test.stdout.off('data', handler)
-	})
+	await waitForExit(test)
+	kill(bridge)
+	kill(ganache)
 })()
