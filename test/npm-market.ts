@@ -57,7 +57,26 @@ contract('NpmMarket', ([deployer]) => {
 
 			expect(await market.lastProperty()).to.be.equal(property)
 		})
-		it('should fail to authenticate npm package when invalid token')
+		it('should fail to authenticate npm package when invalid token', async () => {
+			const {market} = await init(deployer)
+			const property = '0x812788B0b58Cb16e7c2DD6Ead2ad2a52a1caFf6F'
+
+			await market.authenticate(
+				property,
+				':TEST_PACKAGE:',
+				'INCORRECT_TOKEN',
+				'',
+				'',
+				''
+			)
+
+			const res = await waitForMutation(
+				async () => (await market.lastProperty()) === property
+			).catch((err: Error) => err)
+
+			expect(await market.lastProperty()).to.be.not.equal(property)
+			expect(res).to.be.an.instanceOf(Error)
+		})
 	})
 	describe('calculate', () => {
 		it(
