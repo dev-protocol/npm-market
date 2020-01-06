@@ -35,12 +35,12 @@ contract Timebased is Ownable {
 		return (baseTime.timestamp, baseTime.blockHeight);
 	}
 
-	function setBaseTime()
+	function setBaseTime(uint256 __timestamp, uint256 __blockHeight)
 		public
 		onlyOwner
 		returns (uint256 _timestamp, uint256 _blockHeight)
 	{
-		baseTime = BaseTime(_timestamp, _blockHeight);
+		baseTime = BaseTime(__timestamp, __blockHeight);
 		return (baseTime.timestamp, baseTime.blockHeight);
 	}
 }

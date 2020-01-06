@@ -34,7 +34,7 @@ contract QueryNpmAuthentication is usingProvable, Chargeable {
 			revert("mismatch oraclize_cbAddress");
 		}
 		address callback = callbackDestinations[_id];
-		uint256 result = parseInt(_result, 2);
+		uint256 result = parseInt(_result, 0);
 		NpmMarket(callback).authenticated(_id, result);
 	}
 }

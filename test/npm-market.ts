@@ -1,3 +1,6 @@
+import BigNumber from 'bignumber.js'
+import {format} from 'date-fns'
+import * as rp from 'request-promise'
 import {waitForMutation} from './utils'
 import {
 	QueryNpmAuthenticationInstance,
@@ -82,48 +85,70 @@ contract('NpmMarket', ([deployer]) => {
 		})
 	})
 	describe('calculate', () => {
-		const prepare = async (
-			deployer: string,
-			propertyAsMetrics: string
-		): ReturnType<typeof init> => {
-			const _contracts = await init(deployer)
-
-			await _contracts.market.authenticate(
-				propertyAsMetrics,
-				':TEST_PACKAGE:',
-				':TEST_TOKEN:',
-				'',
-				'',
-				''
-			)
-			await waitForMutation(
-				async () =>
-					(await _contracts.market.lastProperty()) === propertyAsMetrics
-			)
-			return _contracts
-		}
-
 		it('calculate downloads count of npm package during the passd period and calling Allocator.calculatedCallback', async () => {
-			const {allocator, queryDownloads} = await prepare(
-				deployer,
-				'0x1D03CE5922e82763a9b57c63F801BD8082C32378'
+			const {queryAuthn, queryDownloads} = await init(deployer)
+			const npmTest = await contracts('NpmMarketTest').new(
+				queryAuthn.address,
+				queryDownloads.address
 			)
+			const allocator = await contracts('Allocator').new(npmTest.address)
 			const metrics = '0x1D03CE5922e82763a9b57c63F801BD8082C32378'
+			await npmTest.setPackages('npm', metrics)
 
 			const {1: _block} = await queryDownloads.getBaseTime()
 			const block = _block.toNumber()
-			const DaysLater30 = block + (87400 * 30) / 15
-			await allocator.allocate(metrics, block, DaysLater30)
+			await allocator.allocate(metrics, block, block)
 
 			await waitForMutation(
 				async () => (await allocator.lastMetricsAddress()) === metrics
 			)
 			expect(await allocator.lastMetricsAddress()).to.be.equal(metrics)
 			expect(
-				await allocator.lastMetricsValue().then(x => x.toNumber())
+				await allocator.lastMetricsValue().then((x: BigNumber) => x.toNumber())
 			).to.be.equal(0)
 		})
-		it('calculate target period by the passed two block-number')
+		it('calculate target period by the passed two block-number', async () => {
+			const {queryAuthn, queryDownloads} = await init(deployer)
+			const npmTest = await contracts('NpmMarketTest').new(
+				queryAuthn.address,
+				queryDownloads.address
+			)
+			const allocator = await contracts('Allocator').new(npmTest.address)
+			const metrics = '0x1D03CE5922e82763a9b57c63F801BD8082C32378'
+			await npmTest.setPackages('npm', metrics)
+
+			const {0: _time, 1: _block} = await queryDownloads.getBaseTime()
+			const ONE_MONTH = 86400 * 30
+			const time = _time.toNumber()
+			const block = _block.toNumber()
+			const baseTime = time - ONE_MONTH
+			const baseBlock = block + ONE_MONTH / 15
+			const endBlock = baseBlock + ONE_MONTH / 15
+			await queryDownloads.setBaseTime(baseTime, baseBlock)
+
+			const start = await queryDownloads
+				.timestamp(baseBlock)
+				.then((x: BigNumber) => x.toNumber() * 1000)
+			const end = await queryDownloads
+				.timestamp(endBlock)
+				.then((x: BigNumber) => x.toNumber() * 1000)
+
+			await allocator.allocate(metrics, baseBlock, endBlock)
+			const npm = await rp({
+				uri: `https://api.npmjs.org/downloads/point/${format(
+					start,
+					'yyyy-MM-dd'
+				)}:${format(end, 'yyyy-MM-dd')}/npm`,
+				json: true
+			})
+			await waitForMutation(
+				async () => (await allocator.lastMetricsAddress()) === metrics
+			)
+			expect(await allocator.lastMetricsAddress()).to.be.equal(metrics)
+			expect(
+				await allocator.lastMetricsValue().then((x: BigNumber) => x.toNumber())
+			).to.be.equal(npm.downloads)
+		})
 		it('should fail to calculate when pass other than Metrics address')
 	})
 })

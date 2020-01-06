@@ -42,7 +42,7 @@ contract QueryNpmDownloads is usingProvable, Chargeable, Timebased {
 			revert("mismatch oraclize_cbAddress");
 		}
 		address callback = callbackDestinations[_id];
-		uint256 result = parseInt(_result, 2);
+		uint256 result = parseInt(_result, 0);
 		NpmMarket(callback).calculated(_id, result);
 	}
 

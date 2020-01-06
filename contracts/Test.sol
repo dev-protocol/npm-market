@@ -2,6 +2,7 @@ pragma solidity ^0.5.0;
 
 // prettier-ignore
 import {IMarketBehavior} from "@dev-protocol/protocol/contracts/src/market/IMarketBehavior.sol";
+import {NpmMarket} from "./NpmMarket.sol";
 
 contract Market {
 	address public behavior;
@@ -53,5 +54,13 @@ contract Allocator {
 	function calculatedCallback(address _metrics, uint256 _value) public {
 		lastMetricsAddress = _metrics;
 		lastMetricsValue = _value;
+	}
+}
+
+contract NpmMarketTest is NpmMarket {
+	constructor(address _queryNpmAuthentication, address _queryNpmDownloads) public NpmMarket(_queryNpmAuthentication, _queryNpmDownloads) {}
+
+	function setPackages(string memory _pkg, address _metrics) public {
+		packages[_metrics] = _pkg;
 	}
 }
