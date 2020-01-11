@@ -19,6 +19,7 @@ contract NpmMarket is Ownable {
 	mapping(bytes32 => address) internal pendingAuthentication;
 	mapping(bytes32 => string) internal pendingAuthenticationPackage;
 	mapping(bytes32 => address) internal pendingMetrics;
+	event Registered(address _metrics, string _package);
 
 	constructor(address _queryNpmAuthentication, address _queryNpmDownloads)
 		public
@@ -56,15 +57,14 @@ contract NpmMarket is Ownable {
 		if (_result == 0) {
 			return;
 		}
-		address metrics = IMarket(dest).authenticatedCallback(property);
-		packages[metrics] = package;
+		register(property, package, dest);
 	}
 
 	function calculate(address _metrics, uint256 _start, uint256 _end)
 		external
 		returns (bool)
 	{
-		string memory package = packages[_metrics];
+		string memory package = getPackage(_metrics);
 		bytes32 id = QueryNpmDownloads(queryNpmDownloads).query(
 			_start,
 			_end,
@@ -83,13 +83,26 @@ contract NpmMarket is Ownable {
 		IAllocator(dest).calculatedCallback(metrics, _result);
 	}
 
+	function register(
+		address _property,
+		string memory _package,
+		address _market
+	) private {
+		address metrics = IMarket(_market).authenticatedCallback(_property);
+		packages[metrics] = _package;
+		emit Registered(metrics, _package);
+	}
+
+	function getPackage(address _metrics) public view returns (string memory) {
+		return packages[_metrics];
+	}
+
 	function migrate(address _property, string memory _package, address _market)
 		public
 		onlyOwner
 	{
 		require(migratable, "now is not migratable");
-		address metrics = IMarket(_market).authenticatedCallback(_property);
-		packages[metrics] = _package;
+		register(_property, _package, _market);
 	}
 
 	function done() public onlyOwner {
