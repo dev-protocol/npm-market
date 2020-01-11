@@ -3,13 +3,15 @@ pragma solidity ^0.5.0;
 import {IMarket} from "@dev-protocol/protocol/contracts/src/market/IMarket.sol";
 // prettier-ignore
 import {IAllocator} from "@dev-protocol/protocol/contracts/src/allocator/IAllocator.sol";
+import {Ownable} from "@openzeppelin/contracts/ownership/Ownable.sol";
 import {QueryNpmAuthentication} from "./QueryNpmAuthentication.sol";
 import {QueryNpmDownloads} from "./QueryNpmDownloads.sol";
 
-contract NpmMarket {
+contract NpmMarket is Ownable {
 	string public schema = "['npm package', 'npm token']";
 	address public queryNpmAuthentication;
 	address public queryNpmDownloads;
+	bool public migratable = true;
 
 	mapping(address => string) internal packages;
 	mapping(bytes32 => address) internal callbackMarket;
@@ -79,5 +81,18 @@ contract NpmMarket {
 		delete pendingMetrics[_id];
 		delete callbackAllocator[_id];
 		IAllocator(dest).calculatedCallback(metrics, _result);
+	}
+
+	function migrate(address _property, string memory _package, address _market)
+		public
+		onlyOwner
+	{
+		require(migratable, "now is not migratable");
+		address metrics = IMarket(_market).authenticatedCallback(_property);
+		packages[metrics] = _package;
+	}
+
+	function done() public onlyOwner {
+		migratable = false;
 	}
 }
