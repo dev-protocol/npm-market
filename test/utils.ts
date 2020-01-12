@@ -8,6 +8,35 @@ import {
 } from '../types/truffle-contracts'
 import BigNumber from 'bignumber.js'
 import Web3 from 'web3'
+import {ChildProcess, spawn} from 'child_process'
+
+const waitForStdOut = async (cp: ChildProcess, test: RegExp): Promise<void> =>
+	new Promise(resolve => {
+		const handler = (data: Buffer): void => {
+			const output = data.toString()
+			console.log(output)
+			if (test.test(output)) {
+				cp.stdout.off('data', handler)
+				resolve()
+			}
+		}
+
+		cp.stdout.on('data', handler)
+	})
+export const startEthereumBridge = async (): Promise<ChildProcess> => {
+	const bridge = spawn('npx', [
+		'ethereum-bridge',
+		'-a',
+		'9',
+		'-H',
+		'127.0.0.1',
+		'-p',
+		'7545',
+		'--dev'
+	])
+	await waitForStdOut(bridge, /Ctrl\+C to exit/)
+	return bridge
+}
 
 export const watch = (deployedContract: any, uri: string) => (
 	name: string,

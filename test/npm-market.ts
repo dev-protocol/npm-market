@@ -1,10 +1,25 @@
 import BigNumber from 'bignumber.js'
 import {format} from 'date-fns'
 import {get} from 'request-promise'
-import {init, createNpmTest, setTimeTo, waitForEvent} from './utils'
+import {
+	init,
+	createNpmTest,
+	setTimeTo,
+	waitForEvent,
+	startEthereumBridge
+} from './utils'
+import {ChildProcess} from 'child_process'
 const ws = 'ws://localhost:7545'
 
+let bridge: ChildProcess
+
 contract('NpmMarket', ([deployer, user]) => {
+	before(async () => {
+		bridge = await startEthereumBridge()
+	})
+	after(() => {
+		process.kill(bridge.pid)
+	})
 	describe('authenticate', () => {
 		it('authenticate npm package and calling Market.authenticatedCallback', async () => {
 			const {market, npm} = await init(deployer)
