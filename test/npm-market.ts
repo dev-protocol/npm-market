@@ -1,6 +1,6 @@
 import BigNumber from 'bignumber.js'
 import {format} from 'date-fns'
-import * as rp from 'request-promise'
+import {get} from 'request-promise'
 import {waitForMutation, init, createNpmTest, setTimeTo} from './utils'
 
 contract('NpmMarket', ([deployer, user]) => {
@@ -74,7 +74,7 @@ contract('NpmMarket', ([deployer, user]) => {
 			const time = await setTimeTo(1, queryDownloads)
 
 			await allocator.allocate(metrics, time.block.start, time.block.end)
-			const api = await rp({
+			const api = await get({
 				uri: `https://api.npmjs.org/downloads/point/${format(
 					time.timestamp.start,
 					'yyyy-MM-dd'
