@@ -2,6 +2,7 @@ pragma solidity ^0.5.0;
 
 // prettier-ignore
 import {IMarketBehavior} from "@dev-protocol/protocol/contracts/src/market/IMarketBehavior.sol";
+// prettier-ignore
 import {Metrics} from "@dev-protocol/protocol/contracts/src/metrics/Metrics.sol";
 import {ERC20} from "openzeppelin-solidity/contracts/token/ERC20/ERC20.sol";
 // prettier-ignore
@@ -67,26 +68,23 @@ contract Property is ERC20, ERC20Detailed {
 	uint256 private constant _supply = 10000000;
 	address public author;
 
-	constructor(
-		address _own,
-		string memory _name,
-		string memory _symbol
-	) public ERC20Detailed(_name, _symbol, _decimals) {
+	constructor(address _own, string memory _name, string memory _symbol)
+		public
+		ERC20Detailed(_name, _symbol, _decimals)
+	{
 		author = _own;
 		_mint(author, _supply);
 	}
 }
 
-
 contract PropertyFactory {
 	event Create(address indexed _from, address _property);
 
-	function create(string memory _name, string memory _symbol, address _author) public returns (address) {
-		Property property = new Property(
-			_author,
-			_name,
-			_symbol
-		);
+	function create(string memory _name, string memory _symbol, address _author)
+		public
+		returns (address)
+	{
+		Property property = new Property(_author, _name, _symbol);
 		emit Create(msg.sender, address(property));
 	}
 }
