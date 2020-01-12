@@ -55,6 +55,7 @@ contract('Migrate MVP', ([deployer]) => {
 			process.env.MARKET_ADDRESS = marketAddress
 			process.env.NPM_MARKET_ADDRESS = npmAddress
 			process.env.PROPERTY_FACTORY_ADDRESS = propertyFactoryAddress
+			process.env.PICK_TO_RANDOM = '100'
 
 			const res = await new Promise<Results>((resolve, reject) => {
 				migrate((err: Error | null, res): void => {

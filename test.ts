@@ -17,8 +17,10 @@ const waitForExit = async (cp: ChildProcess): Promise<void> =>
 		const handler = (data: Buffer): void => console.log(data.toString())
 
 		cp.stdout.on('data', handler)
+		cp.stderr.on('data', handler)
 		cp.on('exit', () => {
 			cp.stdout.off('data', handler)
+			cp.stderr.off('data', handler)
 			resolve()
 		})
 	})
