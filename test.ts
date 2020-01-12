@@ -1,10 +1,11 @@
 import {ChildProcess, spawn} from 'child_process'
 
-const waitForStdOut = async (cp: ChildProcess, txt: string): Promise<void> =>
+const waitForStdOut = async (cp: ChildProcess, test: RegExp): Promise<void> =>
 	new Promise(resolve => {
 		const handler = (data: Buffer): void => {
-			console.log(data.toString())
-			if (data.includes(txt)) {
+			const output = data.toString()
+			console.log(output)
+			if (test.test(output)) {
 				cp.stdout.off('data', handler)
 				resolve()
 			}
@@ -29,7 +30,7 @@ const kill = (cp: ChildProcess): void => process.kill(cp.pid)
 ;(async () => {
 	// Launch ganache
 	const ganache = spawn('npx', ['ganache-cli', '-p', '7545'])
-	await waitForStdOut(ganache, 'Listening on 127.0.0.1:7545')
+	await waitForStdOut(ganache, /Listening on [0-9.:]*/)
 
 	// Launch ethereum-bridge
 	const bridge = spawn('npx', [
@@ -42,10 +43,13 @@ const kill = (cp: ChildProcess): void => process.kill(cp.pid)
 		'7545',
 		'--dev'
 	])
-	await waitForStdOut(bridge, 'Ctrl+C to exit')
+	await waitForStdOut(bridge, /Ctrl\+C to exit/)
 
 	// Run tests
 	const test = spawn('npx', ['truffle', 'test', '--network', 'ganache'])
+	waitForStdOut(test, /[0-9]+ failing$/).then(() => {
+		throw new Error('test is failed')
+	})
 	await waitForExit(test)
 	kill(bridge)
 	kill(ganache)
