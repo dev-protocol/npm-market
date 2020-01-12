@@ -95,7 +95,7 @@ contract('Migrate MVP', ([deployer]) => {
 					expect(author.toLocaleLowerCase()).to.be.equal(
 						pkg!.address.toLocaleLowerCase()
 					)
-					expect(name).to.be.match(/^[a-z0-9-]*$/)
+					expect(name).to.be.match(/^[a-z0-9-.]*$/)
 					expect(symbol).to.be.match(/^[A-Z0-9]*$/)
 				})
 			)
