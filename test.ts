@@ -13,15 +13,16 @@ const waitForStdOut = async (cp: ChildProcess, txt: string): Promise<void> =>
 		cp.stdout.on('data', handler)
 	})
 const waitForExit = async (cp: ChildProcess): Promise<void> =>
-	new Promise(resolve => {
+	new Promise((resolve, reject) => {
 		const handler = (data: Buffer): void => console.log(data.toString())
 
 		cp.stdout.on('data', handler)
-		cp.stderr.on('data', handler)
 		cp.on('exit', () => {
 			cp.stdout.off('data', handler)
-			cp.stderr.off('data', handler)
 			resolve()
+		})
+		cp.on('error', () => {
+			reject()
 		})
 	})
 const kill = (cp: ChildProcess): void => process.kill(cp.pid)
