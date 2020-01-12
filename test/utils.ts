@@ -9,25 +9,6 @@ import {
 import BigNumber from 'bignumber.js'
 import Web3 from 'web3'
 
-export const waitForMutation = async (
-	inspector: () => Promise<boolean>,
-	interval = 100,
-	timeout = 10000
-): Promise<Error | void> =>
-	new Promise((resolve, reject) => {
-		setTimeout(() => reject(new Error()), timeout)
-		const f = async (): Promise<any> => {
-			if (await inspector()) {
-				return resolve()
-			}
-
-			await new Promise(res => setTimeout(res, interval))
-			f()
-		}
-
-		f()
-	})
-
 export const watch = (deployedContract: any, uri: string) => (
 	name: string,
 	handler: (err: Error, values: {[key: string]: string}) => void
@@ -83,11 +64,11 @@ export const init = async (
 	await Promise.all([
 		queryAuthn.charge({
 			from: deployer,
-			value: '1000000000000000'
+			value: '100000000000000000'
 		}),
 		queryDownloads.charge({
 			from: deployer,
-			value: '1000000000000000'
+			value: '100000000000000000'
 		})
 	])
 	return {queryAuthn, queryDownloads, npm, market, allocator}

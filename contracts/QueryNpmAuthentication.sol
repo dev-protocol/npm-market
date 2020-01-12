@@ -1,10 +1,10 @@
 pragma solidity ^0.5.0;
 
-import {usingProvable} from "./module/provableAPI.sol";
 import {NpmMarket} from "./NpmMarket.sol";
 import {Chargeable} from "./lib/Chargeable.sol";
+import {Queryable} from "./lib/Queryable.sol";
 
-contract QueryNpmAuthentication is usingProvable, Chargeable {
+contract QueryNpmAuthentication is Queryable, Chargeable {
 	mapping(bytes32 => address) internal callbackDestinations;
 
 	function query(string calldata _package, string calldata _readOnlyToken)
@@ -12,7 +12,7 @@ contract QueryNpmAuthentication is usingProvable, Chargeable {
 		returns (bytes32)
 	{
 		require(
-			provable_getPrice("URL") < charged(),
+			provable_getPrice("URL", queryGasLimit) < charged(),
 			"Calculation query was NOT sent"
 		);
 		string memory url = string(
@@ -23,7 +23,7 @@ contract QueryNpmAuthentication is usingProvable, Chargeable {
 				_readOnlyToken
 			)
 		);
-		bytes32 id = provable_query("URL", url);
+		bytes32 id = provable_query("URL", url, queryGasLimit);
 		callbackDestinations[id] = msg.sender;
 		return id;
 	}
@@ -34,7 +34,7 @@ contract QueryNpmAuthentication is usingProvable, Chargeable {
 			revert("mismatch oraclize_cbAddress");
 		}
 		address callback = callbackDestinations[_id];
-		uint256 result = parseInt(_result, 0);
+		uint256 result = parseInt(_result);
 		NpmMarket(callback).authenticated(_id, result);
 	}
 }

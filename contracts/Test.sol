@@ -2,12 +2,20 @@ pragma solidity ^0.5.0;
 
 // prettier-ignore
 import {IMarketBehavior} from "@dev-protocol/protocol/contracts/src/market/IMarketBehavior.sol";
-// prettier-ignore
-import {Metrics} from "@dev-protocol/protocol/contracts/src/metrics/Metrics.sol";
 import {ERC20} from "openzeppelin-solidity/contracts/token/ERC20/ERC20.sol";
 // prettier-ignore
 import {ERC20Detailed} from "openzeppelin-solidity/contracts/token/ERC20/ERC20Detailed.sol";
 import {NpmMarket} from "./NpmMarket.sol";
+
+contract Metrics {
+	address public market;
+	address public property;
+
+	constructor(address _property) public {
+		market = msg.sender;
+		property = _property;
+	}
+}
 
 contract Market {
 	address public behavior;
@@ -39,8 +47,7 @@ contract Market {
 
 	function authenticatedCallback(address _prop) public returns (address) {
 		lastProperty = _prop;
-		Metrics metrics = new Metrics(_prop);
-		return address(metrics);
+		return address(new Metrics(_prop));
 	}
 }
 
@@ -88,8 +95,6 @@ contract PropertyFactory {
 		emit Create(msg.sender, address(property));
 	}
 }
-
-contract MetricsTest is Metrics {}
 
 contract NpmMarketTest is NpmMarket {
 	constructor(address _queryNpmAuthentication, address _queryNpmDownloads)

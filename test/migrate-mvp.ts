@@ -2,9 +2,9 @@ import {get} from 'request-promise'
 import {init, watch} from './utils'
 import migrate from '../scripts/migrate-mvp'
 import {
-	MetricsTestInstance,
 	PropertyInstance,
-	NpmMarketInstance
+	NpmMarketInstance,
+	MetricsInstance
 } from '../types/truffle-contracts'
 const ws = 'ws://localhost:7545'
 
@@ -20,8 +20,8 @@ type Results = Array<{
 	metrics: string
 }>
 
-const createMetrics = async (address: string): Promise<MetricsTestInstance> =>
-	artifacts.require('MetricsTest').at(address)
+const createMetrics = async (address: string): Promise<MetricsInstance> =>
+	artifacts.require('Metrics').at(address)
 const createProperty = async (address: string): Promise<PropertyInstance> =>
 	artifacts.require('Property').at(address)
 

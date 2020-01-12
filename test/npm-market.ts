@@ -1,12 +1,13 @@
 import BigNumber from 'bignumber.js'
 import {format} from 'date-fns'
 import {get} from 'request-promise'
-import {waitForMutation, init, createNpmTest, setTimeTo} from './utils'
+import {init, createNpmTest, setTimeTo, waitForEvent} from './utils'
+const ws = 'ws://localhost:7545'
 
 contract('NpmMarket', ([deployer, user]) => {
 	describe('authenticate', () => {
 		it('authenticate npm package and calling Market.authenticatedCallback', async () => {
-			const {market} = await init(deployer)
+			const {market, npm} = await init(deployer)
 			const property = '0x812788B0b58Cb16e7c2DD6Ead2ad2a52a1caFf6F'
 
 			await market.authenticate(
@@ -18,15 +19,12 @@ contract('NpmMarket', ([deployer, user]) => {
 				''
 			)
 
-			await waitForMutation(
-				async () => (await market.lastProperty()) === property,
-				1000
-			)
+			await waitForEvent(npm, ws)('Registered')
 
 			expect(await market.lastProperty()).to.be.equal(property)
 		})
 		it('should fail to authenticate npm package when invalid token', async () => {
-			const {market} = await init(deployer)
+			const {market, npm} = await init(deployer)
 			const property = '0x812788B0b58Cb16e7c2DD6Ead2ad2a52a1caFf6F'
 
 			await market.authenticate(
@@ -38,12 +36,9 @@ contract('NpmMarket', ([deployer, user]) => {
 				''
 			)
 
-			const res = await waitForMutation(
-				async () => (await market.lastProperty()) === property
-			).catch((err: Error) => err)
+			await waitForEvent(npm, ws)('Authenticated')
 
 			expect(await market.lastProperty()).to.be.not.equal(property)
-			expect(res).to.be.an.instanceOf(Error)
 		})
 	})
 	describe('calculate', () => {
@@ -57,9 +52,7 @@ contract('NpmMarket', ([deployer, user]) => {
 			const block = _block.toNumber()
 			await allocator.allocate(metrics, block, block)
 
-			await waitForMutation(
-				async () => (await allocator.lastMetricsAddress()) === metrics
-			)
+			await waitForEvent(npm, ws)('Calculated')
 			expect(await allocator.lastMetricsAddress()).to.be.equal(metrics)
 			expect(
 				await allocator.lastMetricsValue().then((x: BigNumber) => x.toNumber())
@@ -81,9 +74,7 @@ contract('NpmMarket', ([deployer, user]) => {
 				)}:${format(time.timestamp.end, 'yyyy-MM-dd')}/npm`,
 				json: true
 			})
-			await waitForMutation(
-				async () => (await allocator.lastMetricsAddress()) === metrics
-			)
+			await waitForEvent(npm, ws)('Calculated')
 			expect(await allocator.lastMetricsAddress()).to.be.equal(metrics)
 			expect(
 				await allocator.lastMetricsValue().then((x: BigNumber) => x.toNumber())

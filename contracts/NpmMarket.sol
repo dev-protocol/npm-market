@@ -20,6 +20,8 @@ contract NpmMarket is Ownable {
 	mapping(bytes32 => string) internal pendingAuthenticationPackage;
 	mapping(bytes32 => address) internal pendingMetrics;
 	event Registered(address _metrics, string _package);
+	event Authenticated(bytes32 _id, uint256 _result);
+	event Calculated(bytes32 _id, uint256 _result);
 
 	constructor(address _queryNpmAuthentication, address _queryNpmDownloads)
 		public
@@ -48,6 +50,7 @@ contract NpmMarket is Ownable {
 	}
 
 	function authenticated(bytes32 _id, uint256 _result) external {
+		emit Authenticated(_id, _result);
 		address property = pendingAuthentication[_id];
 		address dest = callbackMarket[_id];
 		string memory package = pendingAuthenticationPackage[_id];
@@ -76,6 +79,7 @@ contract NpmMarket is Ownable {
 	}
 
 	function calculated(bytes32 _id, uint256 _result) external {
+		emit Calculated(_id, _result);
 		address metrics = pendingMetrics[_id];
 		address dest = callbackAllocator[_id];
 		delete pendingMetrics[_id];
