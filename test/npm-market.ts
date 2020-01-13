@@ -6,7 +6,7 @@ import {
 	createNpmTest,
 	setTimeTo,
 	waitForEvent,
-	startEthereumBridge
+	launchEthereumBridge
 } from './utils'
 import {ChildProcess} from 'child_process'
 const ws = 'ws://localhost:7545'
@@ -15,7 +15,7 @@ let bridge: ChildProcess
 
 contract('NpmMarket', ([deployer, user]) => {
 	before(async () => {
-		bridge = await startEthereumBridge()
+		bridge = await launchEthereumBridge()
 	})
 	after(() => {
 		process.kill(bridge.pid)

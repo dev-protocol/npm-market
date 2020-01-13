@@ -10,20 +10,7 @@ import BigNumber from 'bignumber.js'
 import Web3 from 'web3'
 import {ChildProcess, spawn} from 'child_process'
 
-const waitForStdOut = async (cp: ChildProcess, test: RegExp): Promise<void> =>
-	new Promise(resolve => {
-		const handler = (data: Buffer): void => {
-			const output = data.toString()
-			console.log(output)
-			if (test.test(output)) {
-				cp.stdout.off('data', handler)
-				resolve()
-			}
-		}
-
-		cp.stdout.on('data', handler)
-	})
-export const startEthereumBridge = async (): Promise<ChildProcess> => {
+export const launchEthereumBridge = async (): Promise<ChildProcess> => {
 	const bridge = spawn('npx', [
 		'ethereum-bridge',
 		'-a',
@@ -34,7 +21,17 @@ export const startEthereumBridge = async (): Promise<ChildProcess> => {
 		'7545',
 		'--dev'
 	])
-	await waitForStdOut(bridge, /Ctrl\+C to exit/)
+	await new Promise(resolve => {
+		const handler = (data: Buffer): void => {
+			console.log(data)
+			if (data.includes('Ctrl+C to exit')) {
+				bridge.stdout.off('data', handler)
+				resolve()
+			}
+		}
+
+		bridge.stdout.on('data', handler)
+	})
 	return bridge
 }
 
