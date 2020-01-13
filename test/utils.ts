@@ -7,24 +7,68 @@ import {
 	NpmMarketTestInstance
 } from '../types/truffle-contracts'
 import BigNumber from 'bignumber.js'
+import Web3 from 'web3'
+import {ChildProcess, spawn} from 'child_process'
 
-export const waitForMutation = async (
-	inspector: () => Promise<boolean>,
-	interval = 100,
+const waitForStdOut = async (cp: ChildProcess, test: RegExp): Promise<void> =>
+	new Promise(resolve => {
+		const handler = (data: Buffer): void => {
+			const output = data.toString()
+			console.log(output)
+			if (test.test(output)) {
+				cp.stdout.off('data', handler)
+				resolve()
+			}
+		}
+
+		cp.stdout.on('data', handler)
+	})
+export const startEthereumBridge = async (): Promise<ChildProcess> => {
+	const bridge = spawn('npx', [
+		'ethereum-bridge',
+		'-a',
+		'9',
+		'-H',
+		'127.0.0.1',
+		'-p',
+		'7545',
+		'--dev'
+	])
+	await waitForStdOut(bridge, /Ctrl\+C to exit/)
+	return bridge
+}
+
+export const watch = (deployedContract: any, uri: string) => (
+	name: string,
+	handler: (err: Error, values: {[key: string]: string}) => void
+): void => {
+	const {contract: deployed} = deployedContract
+	const web3WithWebsockets = new Web3(new Web3.providers.WebsocketProvider(uri))
+	const {events} = new web3WithWebsockets.eth.Contract(
+		deployed._jsonInterface,
+		deployed._address
+	)
+
+	events.allEvents({fromBlock: 0, toBlock: 'latest'}, (err: Error, e: any) => {
+		if (e.event === name) {
+			handler(err, e.returnValues)
+		}
+	})
+}
+
+export const waitForEvent = (deployedContract: any, uri: string) => async (
+	name: string,
 	timeout = 10000
 ): Promise<Error | void> =>
 	new Promise((resolve, reject) => {
 		setTimeout(() => reject(new Error()), timeout)
-		const f = async (): Promise<any> => {
-			if (await inspector()) {
-				return resolve()
+		watch(deployedContract, uri)(name, err => {
+			if (err) {
+				return reject(err)
 			}
 
-			await new Promise(res => setTimeout(res, interval))
-			f()
-		}
-
-		f()
+			resolve()
+		})
 	})
 
 const contracts = artifacts.require
@@ -49,11 +93,11 @@ export const init = async (
 	await Promise.all([
 		queryAuthn.charge({
 			from: deployer,
-			value: '1000000000000000'
+			value: '100000000000000000'
 		}),
 		queryDownloads.charge({
 			from: deployer,
-			value: '1000000000000000'
+			value: '100000000000000000'
 		})
 	])
 	return {queryAuthn, queryDownloads, npm, market, allocator}

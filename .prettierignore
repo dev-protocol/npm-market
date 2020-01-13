@@ -1,5 +1,4 @@
 build
 contracts/module
-serve/**/*.js
-migrations/**/*.js
-test.js
+*.js
+!truffle-config.js

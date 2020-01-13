@@ -1,12 +1,28 @@
 import BigNumber from 'bignumber.js'
 import {format} from 'date-fns'
-import * as rp from 'request-promise'
-import {waitForMutation, init, createNpmTest, setTimeTo} from './utils'
+import {get} from 'request-promise'
+import {
+	init,
+	createNpmTest,
+	setTimeTo,
+	waitForEvent,
+	startEthereumBridge
+} from './utils'
+import {ChildProcess} from 'child_process'
+const ws = 'ws://localhost:7545'
+
+let bridge: ChildProcess
 
 contract('NpmMarket', ([deployer, user]) => {
+	before(async () => {
+		bridge = await startEthereumBridge()
+	})
+	after(() => {
+		process.kill(bridge.pid)
+	})
 	describe('authenticate', () => {
 		it('authenticate npm package and calling Market.authenticatedCallback', async () => {
-			const {market} = await init(deployer)
+			const {market, npm} = await init(deployer)
 			const property = '0x812788B0b58Cb16e7c2DD6Ead2ad2a52a1caFf6F'
 
 			await market.authenticate(
@@ -18,15 +34,12 @@ contract('NpmMarket', ([deployer, user]) => {
 				''
 			)
 
-			await waitForMutation(
-				async () => (await market.lastProperty()) === property,
-				1000
-			)
+			await waitForEvent(npm, ws)('Registered')
 
 			expect(await market.lastProperty()).to.be.equal(property)
 		})
 		it('should fail to authenticate npm package when invalid token', async () => {
-			const {market} = await init(deployer)
+			const {market, npm} = await init(deployer)
 			const property = '0x812788B0b58Cb16e7c2DD6Ead2ad2a52a1caFf6F'
 
 			await market.authenticate(
@@ -38,12 +51,9 @@ contract('NpmMarket', ([deployer, user]) => {
 				''
 			)
 
-			const res = await waitForMutation(
-				async () => (await market.lastProperty()) === property
-			).catch((err: Error) => err)
+			await waitForEvent(npm, ws)('Authenticated')
 
 			expect(await market.lastProperty()).to.be.not.equal(property)
-			expect(res).to.be.an.instanceOf(Error)
 		})
 	})
 	describe('calculate', () => {
@@ -57,9 +67,7 @@ contract('NpmMarket', ([deployer, user]) => {
 			const block = _block.toNumber()
 			await allocator.allocate(metrics, block, block)
 
-			await waitForMutation(
-				async () => (await allocator.lastMetricsAddress()) === metrics
-			)
+			await waitForEvent(npm, ws)('Calculated')
 			expect(await allocator.lastMetricsAddress()).to.be.equal(metrics)
 			expect(
 				await allocator.lastMetricsValue().then((x: BigNumber) => x.toNumber())
@@ -74,16 +82,14 @@ contract('NpmMarket', ([deployer, user]) => {
 			const time = await setTimeTo(1, queryDownloads)
 
 			await allocator.allocate(metrics, time.block.start, time.block.end)
-			const api = await rp({
+			const api = await get({
 				uri: `https://api.npmjs.org/downloads/point/${format(
 					time.timestamp.start,
 					'yyyy-MM-dd'
 				)}:${format(time.timestamp.end, 'yyyy-MM-dd')}/npm`,
 				json: true
 			})
-			await waitForMutation(
-				async () => (await allocator.lastMetricsAddress()) === metrics
-			)
+			await waitForEvent(npm, ws)('Calculated')
 			expect(await allocator.lastMetricsAddress()).to.be.equal(metrics)
 			expect(
 				await allocator.lastMetricsValue().then((x: BigNumber) => x.toNumber())

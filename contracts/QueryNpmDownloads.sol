@@ -1,11 +1,11 @@
 pragma solidity ^0.5.0;
 
-import {usingProvable} from "./module/provableAPI.sol";
 import {Timebased} from "./lib/Timebased.sol";
 import {NpmMarket} from "./NpmMarket.sol";
 import {Chargeable} from "./lib/Chargeable.sol";
+import {Queryable} from "./lib/Queryable.sol";
 
-contract QueryNpmDownloads is usingProvable, Chargeable, Timebased {
+contract QueryNpmDownloads is Queryable, Chargeable, Timebased {
 	mapping(bytes32 => address) internal callbackDestinations;
 
 	function query(
@@ -14,7 +14,7 @@ contract QueryNpmDownloads is usingProvable, Chargeable, Timebased {
 		string calldata _package
 	) external returns (bytes32) {
 		require(
-			provable_getPrice("URL") < charged(),
+			provable_getPrice("URL", queryGasLimit) < charged(),
 			"Calculation query was NOT sent"
 		);
 		(string memory start, string memory end) = date(_startTime, _endTime);
@@ -31,7 +31,7 @@ contract QueryNpmDownloads is usingProvable, Chargeable, Timebased {
 		string memory param = string(
 			abi.encodePacked("json(", url, ").downloads")
 		);
-		bytes32 id = provable_query("URL", param);
+		bytes32 id = provable_query("URL", param, queryGasLimit);
 		callbackDestinations[id] = msg.sender;
 		return id;
 	}
@@ -42,7 +42,7 @@ contract QueryNpmDownloads is usingProvable, Chargeable, Timebased {
 			revert("mismatch oraclize_cbAddress");
 		}
 		address callback = callbackDestinations[_id];
-		uint256 result = parseInt(_result, 0);
+		uint256 result = parseInt(_result);
 		NpmMarket(callback).calculated(_id, result);
 	}
 

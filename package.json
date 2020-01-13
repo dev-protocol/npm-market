@@ -7,7 +7,7 @@
 		"node": "10.x"
 	},
 	"scripts": {
-		"test": "node ./test",
+		"test": "truffle test",
 		"pretest": "npm run build",
 		"generate": "truffle compile && typechain --target truffle './build/**/*.json'",
 		"deploy": "truffle migrate --reset --network",
@@ -37,7 +37,6 @@
 		"eslint-plugin-prettier": "^3.1.2",
 		"ethereum-bridge": "^0.6.2",
 		"ethlint": "^1.2.5",
-		"ganache-cli": "^6.7.0",
 		"husky": "^3.1.0",
 		"prettier": "^1.19.1",
 		"prettier-plugin-solidity": "^1.0.0-alpha.35",
@@ -59,6 +58,7 @@
 	},
 	"dependencies": {
 		"@dev-protocol/protocol": "^0.1.1",
-		"@openzeppelin/contracts": "^2.4.0"
+		"@openzeppelin/contracts": "^2.4.0",
+		"promise-parallel-throttle": "^3.3.0"
 	}
 }

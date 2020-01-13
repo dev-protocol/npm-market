@@ -2,7 +2,20 @@ pragma solidity ^0.5.0;
 
 // prettier-ignore
 import {IMarketBehavior} from "@dev-protocol/protocol/contracts/src/market/IMarketBehavior.sol";
+import {ERC20} from "openzeppelin-solidity/contracts/token/ERC20/ERC20.sol";
+// prettier-ignore
+import {ERC20Detailed} from "openzeppelin-solidity/contracts/token/ERC20/ERC20Detailed.sol";
 import {NpmMarket} from "./NpmMarket.sol";
+
+contract Metrics {
+	address public market;
+	address public property;
+
+	constructor(address _property) public {
+		market = msg.sender;
+		property = _property;
+	}
+}
 
 contract Market {
 	address public behavior;
@@ -34,7 +47,7 @@ contract Market {
 
 	function authenticatedCallback(address _prop) public returns (address) {
 		lastProperty = _prop;
-		return _prop;
+		return address(new Metrics(_prop));
 	}
 }
 
@@ -54,6 +67,32 @@ contract Allocator {
 	function calculatedCallback(address _metrics, uint256 _value) public {
 		lastMetricsAddress = _metrics;
 		lastMetricsValue = _value;
+	}
+}
+
+contract Property is ERC20, ERC20Detailed {
+	uint8 private constant _decimals = 18;
+	uint256 private constant _supply = 10000000;
+	address public author;
+
+	constructor(address _own, string memory _name, string memory _symbol)
+		public
+		ERC20Detailed(_name, _symbol, _decimals)
+	{
+		author = _own;
+		_mint(author, _supply);
+	}
+}
+
+contract PropertyFactory {
+	event Create(address indexed _from, address _property);
+
+	function create(string memory _name, string memory _symbol, address _author)
+		public
+		returns (address)
+	{
+		Property property = new Property(_author, _name, _symbol);
+		emit Create(msg.sender, address(property));
 	}
 }
 
