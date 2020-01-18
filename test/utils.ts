@@ -116,19 +116,18 @@ export const createNpmTest = async (
 }
 
 export const setTimeTo = async (
-	month: number,
+	seconds: number,
 	queryDownloads: QueryNpmDownloadsInstance
 ): Promise<{
 	timestamp: {start: number; end: number}
 	block: {start: number; end: number}
 }> => {
 	const {0: _time, 1: _block} = await queryDownloads.getBaseTime()
-	const MONTH = 86400 * 30 * month
 	const time = _time.toNumber()
 	const block = _block.toNumber()
-	const baseTime = time - MONTH
-	const baseBlock = block + MONTH / 15
-	const endBlock = baseBlock + MONTH / 15
+	const baseTime = time - seconds
+	const baseBlock = ~~(block + seconds / 15)
+	const endBlock = ~~(baseBlock + seconds / 15)
 	await queryDownloads.setBaseTime(baseTime, baseBlock)
 
 	const start = await queryDownloads

@@ -63,15 +63,14 @@ contract('NpmMarket', ([deployer, user]) => {
 			const metrics = '0x1D03CE5922e82763a9b57c63F801BD8082C32378'
 			await npm.setPackages('npm', metrics)
 
-			const {1: _block} = await queryDownloads.getBaseTime()
-			const block = _block.toNumber()
-			await allocator.allocate(metrics, block, block)
+			const time = await setTimeTo(86400 + 15, queryDownloads)
+			await allocator.allocate(metrics, time.block.start, time.block.end)
 
 			await waitForEvent(npm, ws)('Calculated')
 			expect(await allocator.lastMetricsAddress()).to.be.equal(metrics)
 			expect(
 				await allocator.lastMetricsValue().then((x: BigNumber) => x.toNumber())
-			).to.be.equal(0)
+			).to.be.not.equal(0)
 		})
 		it('calculate target period by the passed two block-number', async () => {
 			const {queryAuthn, queryDownloads} = await init(deployer)
@@ -79,7 +78,7 @@ contract('NpmMarket', ([deployer, user]) => {
 			const metrics = '0x1D03CE5922e82763a9b57c63F801BD8082C32378'
 			await npm.setPackages('npm', metrics)
 
-			const time = await setTimeTo(1, queryDownloads)
+			const time = await setTimeTo(86400 * 30, queryDownloads)
 
 			await allocator.allocate(metrics, time.block.start, time.block.end)
 			const api = await get({
@@ -94,6 +93,22 @@ contract('NpmMarket', ([deployer, user]) => {
 			expect(
 				await allocator.lastMetricsValue().then((x: BigNumber) => x.toNumber())
 			).to.be.equal(api.downloads)
+		})
+		it('should fail to calculate when the target period within 1 day', async () => {
+			const {queryAuthn, queryDownloads} = await init(deployer)
+			const {npm, allocator} = await createNpmTest(queryAuthn, queryDownloads)
+			const metrics = '0x1D03CE5922e82763a9b57c63F801BD8082C32378'
+			await npm.setPackages('npm', metrics)
+
+			const time = await setTimeTo(86400, queryDownloads)
+			const res = await allocator
+				.allocate(metrics, time.block.start, time.block.end)
+				.catch((err: Error) => err)
+
+			expect(res).to.be.an.instanceOf(Error)
+			expect((res as any).reason).to.be.equal(
+				'cannot be re-calculate within 24 hours'
+			)
 		})
 	})
 	describe('migrate', () => {

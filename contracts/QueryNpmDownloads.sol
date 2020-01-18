@@ -17,7 +17,10 @@ contract QueryNpmDownloads is Queryable, Chargeable, Timebased {
 			provable_getPrice("URL", queryGasLimit) < charged(),
 			"Calculation query was NOT sent"
 		);
-		(string memory start, string memory end) = date(_startTime, _endTime);
+		uint256 startTime = timestamp(_startTime);
+		uint256 endTime = timestamp(_endTime);
+		require(endTime - startTime > 86400, "cannot be re-calculate within 24 hours");
+		(string memory start, string memory end) = date(startTime, endTime);
 		string memory url = string(
 			abi.encodePacked(
 				"https://api.npmjs.org/downloads/point/",
@@ -90,15 +93,13 @@ contract QueryNpmDownloads is Queryable, Chargeable, Timebased {
 
 	function date(uint256 _start, uint256 _end)
 		private
-		view
+		pure
 		returns (string memory start, string memory end)
 	{
-		uint256 startTime = timestamp(_start);
-		uint256 endTime = timestamp(_end);
 		(uint256 startY, uint256 startM, uint256 startD) = secondsToDate(
-			startTime
+			_start
 		);
-		(uint256 endY, uint256 endM, uint256 endD) = secondsToDate(endTime);
+		(uint256 endY, uint256 endM, uint256 endD) = secondsToDate(_end);
 		string memory startDate = dateFormat(startY, startM, startD);
 		string memory endDate = dateFormat(endY, endM, endD);
 		return (startDate, endDate);
