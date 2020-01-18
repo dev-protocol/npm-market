@@ -19,7 +19,10 @@ contract QueryNpmDownloads is Queryable, Chargeable, Timebased {
 		);
 		uint256 startTime = timestamp(_startTime);
 		uint256 endTime = timestamp(_endTime);
-		require(endTime - startTime > 86400, "cannot be re-calculate within 24 hours");
+		require(
+			endTime - startTime > 86400,
+			"cannot be re-calculate within 24 hours"
+		);
 		(string memory start, string memory end) = date(startTime, endTime);
 		string memory url = string(
 			abi.encodePacked(
