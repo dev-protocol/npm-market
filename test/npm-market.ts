@@ -70,7 +70,7 @@ contract('NpmMarket', ([deployer, user]) => {
 			await npm.setPackages('npm', metrics)
 
 			const time = await setTimeTo(86400 * 2 + 15, queryDownloads)
-			await allocator.allocate(metrics, time.block.start, time.block.end)
+			await allocator.allocate(metrics, time.block.begin, time.block.end)
 
 			await waitForEvent(npm, ws)('Calculated')
 			expect(await allocator.lastMetricsAddress()).to.be.equal(metrics)
@@ -82,7 +82,7 @@ contract('NpmMarket', ([deployer, user]) => {
 			const {queryDownloads} = await init(deployer)
 			const time = await setTimeTo(86400 * 6, queryDownloads)
 
-			queryDownloads.query(time.block.start, time.block.end, 'npm')
+			queryDownloads.query(time.block.begin, time.block.end, 'npm')
 			const res = await waitForEvent(queryDownloads, ws)('Queried')
 
 			expect(res).to.be.equal(undefined)
@@ -94,14 +94,14 @@ contract('NpmMarket', ([deployer, user]) => {
 			await npm.setPackages('npm', metrics)
 
 			const time = await setTimeTo(86400 * 7, queryDownloads)
-			allocator.allocate(metrics, time.block.start, time.block.end)
+			allocator.allocate(metrics, time.block.begin, time.block.end)
 
-			const [start, end, pkg] = await new Promise<string[]>(resolve => {
+			const [begin, end, pkg] = await new Promise<string[]>(resolve => {
 				watch(queryDownloads, ws)('Queried', (_, values) => {
-					resolve([values._start, values._end, values._package])
+					resolve([values._begin, values._end, values._package])
 				})
 			})
-			expect(Number(start)).to.be.equal(time.timestamp.start / 1000)
+			expect(Number(begin)).to.be.equal(time.timestamp.begin / 1000)
 			expect(Number(end)).to.be.equal(
 				getTime(subDays(time.timestamp.end, 1)) / 1000
 			)
@@ -115,10 +115,10 @@ contract('NpmMarket', ([deployer, user]) => {
 
 			const time = await setTimeTo(86400 * 30, queryDownloads)
 
-			await allocator.allocate(metrics, time.block.start, time.block.end)
+			await allocator.allocate(metrics, time.block.begin, time.block.end)
 			const api = await get({
 				uri: `https://api.npmjs.org/downloads/point/${format(
-					time.timestamp.start,
+					time.timestamp.begin,
 					'yyyy-MM-dd'
 				)}:${format(subDays(time.timestamp.end, 1), 'yyyy-MM-dd')}/npm`,
 				json: true
@@ -148,7 +148,7 @@ contract('NpmMarket', ([deployer, user]) => {
 			it('should fail to calculate when the target period is 1 day', async () => {
 				const time = await setTimeTo(86400, queryDownloads)
 				const res = await allocator
-					.allocate(metrics, time.block.start, time.block.end)
+					.allocate(metrics, time.block.begin, time.block.end)
 					.catch((err: Error) => err)
 
 				expect(res).to.be.an.instanceOf(Error)
@@ -159,7 +159,7 @@ contract('NpmMarket', ([deployer, user]) => {
 			it('should fail to calculate when the target period is exactly 2 days', async () => {
 				const time = await setTimeTo(86400 * 2, queryDownloads)
 				const res = await allocator
-					.allocate(metrics, time.block.start, time.block.end)
+					.allocate(metrics, time.block.begin, time.block.end)
 					.catch((err: Error) => err)
 
 				expect(res).to.be.an.instanceOf(Error)
@@ -169,7 +169,7 @@ contract('NpmMarket', ([deployer, user]) => {
 			})
 			it('should succeed to calculate when the target period is more than 2 days and 1 block', async () => {
 				const time = await setTimeTo(86400 * 2 + 15, queryDownloads)
-				allocator.allocate(metrics, time.block.start, time.block.end)
+				allocator.allocate(metrics, time.block.begin, time.block.end)
 
 				const res = await waitForEvent(npm, ws)('Calculated')
 

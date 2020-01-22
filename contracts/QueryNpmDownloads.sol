@@ -9,10 +9,10 @@ contract QueryNpmDownloads is Queryable, Chargeable, Timebased {
 	uint24 constant SECONDS_PER_DAY = 86400;
 
 	mapping(bytes32 => address) internal callbackDestinations;
-	event Queried(uint256 _start, uint256 _end, string _package);
+	event Queried(uint256 _begin, uint256 _end, string _package);
 
 	function query(
-		uint256 _startTime,
+		uint256 _beginTime,
 		uint256 _endTime,
 		string calldata _package
 	) external returns (bytes32) {
@@ -20,17 +20,17 @@ contract QueryNpmDownloads is Queryable, Chargeable, Timebased {
 			provable_getPrice("URL", queryGasLimit) < charged(),
 			"Calculation query was NOT sent"
 		);
-		uint256 startTime = timestamp(_startTime);
+		uint256 beginTime = timestamp(_beginTime);
 		uint256 endTime = timestamp(_endTime) - SECONDS_PER_DAY;
 		require(
-			endTime - startTime > SECONDS_PER_DAY,
+			endTime - beginTime > SECONDS_PER_DAY,
 			"The calculation period must be at more than 48 hours"
 		);
-		(string memory start, string memory end) = date(startTime, endTime);
+		(string memory begin, string memory end) = date(beginTime, endTime);
 		string memory url = string(
 			abi.encodePacked(
 				"https://api.npmjs.org/downloads/point/",
-				start,
+				begin,
 				":",
 				end,
 				"/",
@@ -41,7 +41,7 @@ contract QueryNpmDownloads is Queryable, Chargeable, Timebased {
 			abi.encodePacked("json(", url, ").downloads")
 		);
 		bytes32 id = provable_query("URL", param, queryGasLimit);
-		emit Queried(startTime, endTime, _package);
+		emit Queried(beginTime, endTime, _package);
 		callbackDestinations[id] = msg.sender;
 		return id;
 	}
@@ -98,17 +98,17 @@ contract QueryNpmDownloads is Queryable, Chargeable, Timebased {
 			);
 	}
 
-	function date(uint256 _start, uint256 _end)
+	function date(uint256 _begin, uint256 _end)
 		private
 		pure
-		returns (string memory start, string memory end)
+		returns (string memory begin, string memory end)
 	{
-		(uint256 startY, uint256 startM, uint256 startD) = secondsToDate(
-			_start
+		(uint256 beginY, uint256 beginM, uint256 beginD) = secondsToDate(
+			_begin
 		);
 		(uint256 endY, uint256 endM, uint256 endD) = secondsToDate(_end);
-		string memory startDate = dateFormat(startY, startM, startD);
+		string memory beginDate = dateFormat(beginY, beginM, beginD);
 		string memory endDate = dateFormat(endY, endM, endD);
-		return (startDate, endDate);
+		return (beginDate, endDate);
 	}
 }

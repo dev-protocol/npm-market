@@ -119,8 +119,8 @@ export const setTimeTo = async (
 	seconds: number,
 	queryDownloads: QueryNpmDownloadsInstance
 ): Promise<{
-	timestamp: {start: number; end: number}
-	block: {start: number; end: number}
+	timestamp: {begin: number; end: number}
+	block: {begin: number; end: number}
 }> => {
 	const {0: _time, 1: _block} = await queryDownloads.getBaseTime()
 	const time = _time.toNumber()
@@ -130,7 +130,7 @@ export const setTimeTo = async (
 	const endBlock = ~~(baseBlock + seconds / 15)
 	await queryDownloads.setBaseTime(baseTime, baseBlock)
 
-	const start = await queryDownloads
+	const begin = await queryDownloads
 		.timestamp(baseBlock)
 		.then((x: BigNumber) => x.toNumber() * 1000)
 	const end = await queryDownloads
@@ -139,11 +139,11 @@ export const setTimeTo = async (
 
 	return {
 		timestamp: {
-			start,
+			begin,
 			end
 		},
 		block: {
-			start: baseBlock,
+			begin: baseBlock,
 			end: endBlock
 		}
 	}

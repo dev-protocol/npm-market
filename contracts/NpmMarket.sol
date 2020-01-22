@@ -63,13 +63,13 @@ contract NpmMarket is Ownable {
 		register(property, package, dest);
 	}
 
-	function calculate(address _metrics, uint256 _start, uint256 _end)
+	function calculate(address _metrics, uint256 _begin, uint256 _end)
 		external
 		returns (bool)
 	{
 		string memory package = getPackage(_metrics);
 		bytes32 id = QueryNpmDownloads(queryNpmDownloads).query(
-			_start,
+			_begin,
 			_end,
 			package
 		);
