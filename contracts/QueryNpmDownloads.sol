@@ -24,7 +24,7 @@ contract QueryNpmDownloads is Queryable, Chargeable, Timebased {
 		uint256 endTime = timestamp(_endTime) - SECONDS_PER_DAY;
 		require(
 			endTime - startTime > SECONDS_PER_DAY,
-			"cannot be re-calculate within 48 hours"
+			"The calculation period must be at more than 48 hours"
 		);
 		(string memory start, string memory end) = date(startTime, endTime);
 		string memory url = string(

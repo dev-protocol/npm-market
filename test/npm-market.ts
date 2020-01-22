@@ -153,7 +153,7 @@ contract('NpmMarket', ([deployer, user]) => {
 
 				expect(res).to.be.an.instanceOf(Error)
 				expect((res as any).reason).to.be.equal(
-					'cannot be re-calculate within 48 hours'
+					'The calculation period must be at more than 48 hours'
 				)
 			})
 			it('should fail to calculate when the target period is exactly 2 days', async () => {
@@ -164,7 +164,7 @@ contract('NpmMarket', ([deployer, user]) => {
 
 				expect(res).to.be.an.instanceOf(Error)
 				expect((res as any).reason).to.be.equal(
-					'cannot be re-calculate within 48 hours'
+					'The calculation period must be at more than 48 hours'
 				)
 			})
 			it('should succeed to calculate when the target period is more than 2 days and 1 block', async () => {
