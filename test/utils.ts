@@ -23,7 +23,7 @@ export const launchEthereumBridge = async (): Promise<ChildProcess> => {
 	])
 	await new Promise(resolve => {
 		const handler = (data: Buffer): void => {
-			console.log(data)
+			console.log(data.toString())
 			if (data.includes('Ctrl+C to exit')) {
 				bridge.stdout.off('data', handler)
 				resolve()
