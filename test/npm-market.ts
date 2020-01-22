@@ -1,14 +1,20 @@
 import BigNumber from 'bignumber.js'
-import {format} from 'date-fns'
+import {format, subDays, getTime} from 'date-fns'
 import {get} from 'request-promise'
 import {
 	init,
 	createNpmTest,
 	setTimeTo,
 	waitForEvent,
-	launchEthereumBridge
+	launchEthereumBridge,
+	watch
 } from './utils'
 import {ChildProcess} from 'child_process'
+import {
+	QueryNpmDownloadsInstance,
+	AllocatorInstance,
+	NpmMarketTestInstance
+} from '../types/truffle-contracts'
 const ws = 'ws://localhost:7545'
 
 let bridge: ChildProcess
@@ -63,7 +69,7 @@ contract('NpmMarket', ([deployer, user]) => {
 			const metrics = '0x1D03CE5922e82763a9b57c63F801BD8082C32378'
 			await npm.setPackages('npm', metrics)
 
-			const time = await setTimeTo(86400 + 15, queryDownloads)
+			const time = await setTimeTo(86400 * 2 + 15, queryDownloads)
 			await allocator.allocate(metrics, time.block.start, time.block.end)
 
 			await waitForEvent(npm, ws)('Calculated')
@@ -71,6 +77,35 @@ contract('NpmMarket', ([deployer, user]) => {
 			expect(
 				await allocator.lastMetricsValue().then((x: BigNumber) => x.toNumber())
 			).to.be.not.equal(0)
+		})
+		it('emit `Queried` event when request query is began', async () => {
+			const {queryDownloads} = await init(deployer)
+			const time = await setTimeTo(86400 * 6, queryDownloads)
+
+			queryDownloads.query(time.block.start, time.block.end, 'npm')
+			const res = await waitForEvent(queryDownloads, ws)('Queried')
+
+			expect(res).to.be.equal(undefined)
+		})
+		it('end of the target period is 1 day before the target period', async () => {
+			const {queryAuthn, queryDownloads} = await init(deployer)
+			const {npm, allocator} = await createNpmTest(queryAuthn, queryDownloads)
+			const metrics = '0x1D03CE5922e82763a9b57c63F801BD8082C32378'
+			await npm.setPackages('npm', metrics)
+
+			const time = await setTimeTo(86400 * 7, queryDownloads)
+			allocator.allocate(metrics, time.block.start, time.block.end)
+
+			const [start, end, pkg] = await new Promise<string[]>(resolve => {
+				watch(queryDownloads, ws)('Queried', (_, values) => {
+					resolve([values._start, values._end, values._package])
+				})
+			})
+			expect(Number(start)).to.be.equal(time.timestamp.start / 1000)
+			expect(Number(end)).to.be.equal(
+				getTime(subDays(time.timestamp.end, 1)) / 1000
+			)
+			expect(pkg).to.be.equal('npm')
 		})
 		it('calculate target period by the passed two block-number', async () => {
 			const {queryAuthn, queryDownloads} = await init(deployer)
@@ -85,7 +120,7 @@ contract('NpmMarket', ([deployer, user]) => {
 				uri: `https://api.npmjs.org/downloads/point/${format(
 					time.timestamp.start,
 					'yyyy-MM-dd'
-				)}:${format(time.timestamp.end, 'yyyy-MM-dd')}/npm`,
+				)}:${format(subDays(time.timestamp.end, 1), 'yyyy-MM-dd')}/npm`,
 				json: true
 			})
 			await waitForEvent(npm, ws)('Calculated')
@@ -94,21 +129,52 @@ contract('NpmMarket', ([deployer, user]) => {
 				await allocator.lastMetricsValue().then((x: BigNumber) => x.toNumber())
 			).to.be.equal(api.downloads)
 		})
-		it('should fail to calculate when the target period within 1 day', async () => {
-			const {queryAuthn, queryDownloads} = await init(deployer)
-			const {npm, allocator} = await createNpmTest(queryAuthn, queryDownloads)
+		describe('should fail to calculate when the target period within 2 days', () => {
+			let queryDownloads: QueryNpmDownloadsInstance
+			let npm: NpmMarketTestInstance
+			let allocator: AllocatorInstance
 			const metrics = '0x1D03CE5922e82763a9b57c63F801BD8082C32378'
-			await npm.setPackages('npm', metrics)
+			before(async () => {
+				const launched = await init(deployer)
+				const contracts = await createNpmTest(
+					launched.queryAuthn,
+					launched.queryDownloads
+				)
+				queryDownloads = launched.queryDownloads
+				npm = contracts.npm
+				allocator = contracts.allocator
+				await npm.setPackages('npm', metrics)
+			})
+			it('should fail to calculate when the target period is 1 day', async () => {
+				const time = await setTimeTo(86400, queryDownloads)
+				const res = await allocator
+					.allocate(metrics, time.block.start, time.block.end)
+					.catch((err: Error) => err)
 
-			const time = await setTimeTo(86400, queryDownloads)
-			const res = await allocator
-				.allocate(metrics, time.block.start, time.block.end)
-				.catch((err: Error) => err)
+				expect(res).to.be.an.instanceOf(Error)
+				expect((res as any).reason).to.be.equal(
+					'cannot be re-calculate within 48 hours'
+				)
+			})
+			it('should fail to calculate when the target period is exactly 2 days', async () => {
+				const time = await setTimeTo(86400 * 2, queryDownloads)
+				const res = await allocator
+					.allocate(metrics, time.block.start, time.block.end)
+					.catch((err: Error) => err)
 
-			expect(res).to.be.an.instanceOf(Error)
-			expect((res as any).reason).to.be.equal(
-				'cannot be re-calculate within 24 hours'
-			)
+				expect(res).to.be.an.instanceOf(Error)
+				expect((res as any).reason).to.be.equal(
+					'cannot be re-calculate within 48 hours'
+				)
+			})
+			it('should succeed to calculate when the target period is more than 2 days and 1 block', async () => {
+				const time = await setTimeTo(86400 * 2 + 15, queryDownloads)
+				allocator.allocate(metrics, time.block.start, time.block.end)
+
+				const res = await waitForEvent(npm, ws)('Calculated')
+
+				expect(res).to.be.equal(undefined)
+			})
 		})
 	})
 	describe('migrate', () => {

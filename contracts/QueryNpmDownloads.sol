@@ -6,7 +6,10 @@ import {Chargeable} from "./lib/Chargeable.sol";
 import {Queryable} from "./lib/Queryable.sol";
 
 contract QueryNpmDownloads is Queryable, Chargeable, Timebased {
+	uint24 constant SECONDS_PER_DAY = 86400;
+
 	mapping(bytes32 => address) internal callbackDestinations;
+	event Queried(uint256 _start, uint256 _end, string _package);
 
 	function query(
 		uint256 _startTime,
@@ -18,10 +21,10 @@ contract QueryNpmDownloads is Queryable, Chargeable, Timebased {
 			"Calculation query was NOT sent"
 		);
 		uint256 startTime = timestamp(_startTime);
-		uint256 endTime = timestamp(_endTime);
+		uint256 endTime = timestamp(_endTime) - SECONDS_PER_DAY;
 		require(
-			endTime - startTime > 86400,
-			"cannot be re-calculate within 24 hours"
+			endTime - startTime > SECONDS_PER_DAY,
+			"cannot be re-calculate within 48 hours"
 		);
 		(string memory start, string memory end) = date(startTime, endTime);
 		string memory url = string(
@@ -38,6 +41,7 @@ contract QueryNpmDownloads is Queryable, Chargeable, Timebased {
 			abi.encodePacked("json(", url, ").downloads")
 		);
 		bytes32 id = provable_query("URL", param, queryGasLimit);
+		emit Queried(startTime, endTime, _package);
 		callbackDestinations[id] = msg.sender;
 		return id;
 	}
