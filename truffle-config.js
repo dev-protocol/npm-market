@@ -2,7 +2,7 @@
 /* eslint-disable @typescript-eslint/camelcase */
 require('ts-node/register')
 require('dotenv').config()
-const HDWalletProvider = require('truffle-hdwallet-provider')
+const HDWalletProvider = require('@truffle/hdwallet-provider')
 const {
 	ETHEREUM_PROVIDERS_MAINNET,
 	ETHEREUM_PROVIDERS_ROPSTEN,
