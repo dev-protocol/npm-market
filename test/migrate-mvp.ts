@@ -1,7 +1,7 @@
 /* eslint-disable max-nested-callbacks */
 import {get} from 'request-promise'
 import {init} from './utils'
-import {migrateMvp} from '../migrations/migrate-mvp'
+import {migrateMvp} from '../scripts/migrate-mvp'
 import {
 	PropertyInstance,
 	NpmMarketInstance,
