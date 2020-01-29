@@ -51,7 +51,10 @@ contract Market {
 		return address(this);
 	}
 
-	function authenticatedCallback(address _prop, bytes32 _key) public returns (address) {
+	function authenticatedCallback(address _prop, bytes32 _key)
+		public
+		returns (address)
+	{
 		lastProperty = _prop;
 		return address(new Metrics(_prop));
 	}
