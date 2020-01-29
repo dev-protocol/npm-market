@@ -2,8 +2,7 @@ import {config} from 'dotenv'
 import {migrateMvp} from './migrate-mvp'
 import {
 	PropertyFactoryInstance,
-	NpmMarketInstance,
-	MarketFactoryInstance
+	NpmMarketInstance
 } from '../types/truffle-contracts'
 config()
 
@@ -24,7 +23,7 @@ const handler = function(deployer, network) {
 
 	let propertyFactory: PropertyFactoryInstance
 	let npmMarket: NpmMarketInstance
-	;(deployer as any)
+	;((deployer as unknown) as Promise<void>)
 		.then(async () =>
 			Promise.all([
 				artifacts.require('MarketFactory').at(MARKET_FACTORY_ADDRESS),
@@ -32,18 +31,12 @@ const handler = function(deployer, network) {
 				artifacts.require('NpmMarket').deployed()
 			])
 		)
-		.then(
-			async ([_marketFactory, _propertyFactory, _npmMarket]: [
-				MarketFactoryInstance,
-				PropertyFactoryInstance,
-				NpmMarketInstance
-			]) => {
-				propertyFactory = _propertyFactory
-				npmMarket = _npmMarket
-				return _marketFactory.create(npm.address)
-			}
-		)
-		.then(async (res: Truffle.TransactionResponse) => {
+		.then(async ([_marketFactory, _propertyFactory, _npmMarket]) => {
+			propertyFactory = _propertyFactory
+			npmMarket = _npmMarket
+			return _marketFactory.create(npm.address)
+		})
+		.then(async res => {
 			const market = res.logs.find(e => e.event === 'Create')!.args._market
 			return migrateMvp(npmMarket, propertyFactory, market)
 		})
