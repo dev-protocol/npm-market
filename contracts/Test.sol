@@ -17,6 +17,12 @@ contract Metrics {
 	}
 }
 
+contract MarketFactory {
+	event Create(address indexed _from, address _market);
+
+	function create(address _addr) external returns (address);
+}
+
 contract Market {
 	address public behavior;
 	address public lastProperty;
@@ -45,7 +51,7 @@ contract Market {
 		return address(this);
 	}
 
-	function authenticatedCallback(address _prop) public returns (address) {
+	function authenticatedCallback(address _prop, bytes32 _key) public returns (address) {
 		lastProperty = _prop;
 		return address(new Metrics(_prop));
 	}

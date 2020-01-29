@@ -1,12 +1,13 @@
+/* eslint-disable max-nested-callbacks */
 import {get} from 'request-promise'
-import {init, watch} from './utils'
-import migrate from '../scripts/migrate-mvp'
+import {init} from './utils'
+import {migrateMvp} from '../migrations/migrate-mvp'
 import {
 	PropertyInstance,
 	NpmMarketInstance,
-	MetricsInstance
+	MetricsInstance,
+	PropertyFactoryInstance
 } from '../types/truffle-contracts'
-const ws = 'ws://localhost:7545'
 
 type Pkgs = Array<{
 	package: string
@@ -27,23 +28,14 @@ const createProperty = async (address: string): Promise<PropertyInstance> =>
 
 contract('Migrate MVP', ([deployer]) => {
 	describe('migration', () => {
-		let npmMarket: NpmMarketInstance
 		let marketAddress: string
-		let npmAddress: string
-		let propertyFactoryAddress: string
+		let npmMarket: NpmMarketInstance
+		let propertyFactory: PropertyFactoryInstance
 		before(async () => {
 			const {market, npm} = await init(deployer)
-			const propertyFactory = await artifacts.require('PropertyFactory').new()
-			npmMarket = npm
+			propertyFactory = await artifacts.require('PropertyFactory').new()
 			marketAddress = market.address
-			npmAddress = npm.address
-			propertyFactoryAddress = propertyFactory.address
-			watch(npm, ws)('Registered', (_, values) =>
-				console.log(`New metrics contract: ${values._metrics}`)
-			)
-			watch(propertyFactory, ws)('Create', (_, values) =>
-				console.log(`New property contract: ${values._property}`)
-			)
+			npmMarket = npm
 		})
 
 		it('migration all packages', async function() {
@@ -52,20 +44,9 @@ contract('Migrate MVP', ([deployer]) => {
 				uri: 'https://dev-distribution.now.sh/config/packages',
 				json: true
 			})
-			process.env.MARKET_ADDRESS = marketAddress
-			process.env.NPM_MARKET_ADDRESS = npmAddress
-			process.env.PROPERTY_FACTORY_ADDRESS = propertyFactoryAddress
 			process.env.PICK_TO_RANDOM = '100'
 
-			const res = await new Promise<Results>((resolve, reject) => {
-				migrate((err: Error | null, res): void => {
-					if (err) {
-						return reject(err)
-					}
-
-					resolve(res)
-				})
-			})
+			const res = await migrateMvp(npmMarket, propertyFactory, marketAddress)
 			console.log('migration is done')
 
 			await Promise.all(

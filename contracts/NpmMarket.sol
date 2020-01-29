@@ -92,7 +92,7 @@ contract NpmMarket is Ownable {
 		string memory _package,
 		address _market
 	) private {
-		address metrics = IMarket(_market).authenticatedCallback(_property);
+		address metrics = IMarket(_market).authenticatedCallback(_property, keccak256(abi.encodePacked(_package)));
 		packages[metrics] = _package;
 		emit Registered(metrics, _package);
 	}

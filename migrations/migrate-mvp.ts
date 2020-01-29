@@ -1,6 +1,5 @@
 import {get} from 'request-promise'
 import {
-	MarketInstance,
 	NpmMarketInstance,
 	PropertyFactoryInstance
 } from '../types/truffle-contracts'
@@ -18,25 +17,11 @@ type Results = Array<{
 	metrics: string
 }>
 
-const createContracts = async (
-	addressMarket: string,
-	addressNpm: string,
-	addressPropertyFactory: string
-): Promise<{
-	market: MarketInstance
-	npm: NpmMarketInstance
-	propertyFactory: PropertyFactoryInstance
-}> => {
-	const [market, npm, propertyFactory] = await Promise.all([
-		artifacts.require('Market').at(addressMarket),
-		artifacts.require('NpmMarket').at(addressNpm),
-		artifacts.require('PropertyFactory').at(addressPropertyFactory)
-	])
-	return {market, npm, propertyFactory}
-}
-
 const createPropertyName = (pkg: string): string =>
-	pkg.replace(/^@.*\/(.*)/, '$1')
+	pkg
+		.replace(/^@.*\/(.*)/, '$1')
+		.slice(0, 10)
+		.padStart(3, 'x')
 
 const createPropertySymbol = (pkg: string): string =>
 	createPropertyName(pkg)
@@ -58,33 +43,20 @@ const pickElements = (pkgs: Pkgs, count = 0): Pkgs =>
 					.map(i => pkgs[i])
 			: pkgs)(pkgs.length - 1)
 
-const handler = async (
-	callback: (err: Error | null, res?: Results) => void
-): Promise<void> => {
-	const {
-		MARKET_ADDRESS,
-		NPM_MARKET_ADDRESS,
-		PROPERTY_FACTORY_ADDRESS,
-		PICK_TO_RANDOM = 0
-	} = process.env
-	if (
-		MARKET_ADDRESS === undefined ||
-		NPM_MARKET_ADDRESS === undefined ||
-		PROPERTY_FACTORY_ADDRESS === undefined
-	) {
-		return callback(new Error('required options are not found'))
-	}
+export const migrateMvp = async (
+	npm: NpmMarketInstance,
+	propertyFactory: PropertyFactoryInstance,
+	market: string
+): Promise<Results> => {
+	console.log('*** Start migration')
+	const {PICK_TO_RANDOM = 0} = process.env
 
-	const {market, npm, propertyFactory} = await createContracts(
-		MARKET_ADDRESS,
-		NPM_MARKET_ADDRESS,
-		PROPERTY_FACTORY_ADDRESS
-	)
 	const pkgs: Pkgs = await get({
 		uri: 'https://dev-distribution.now.sh/config/packages',
 		json: true
 	})
 	const count = PICK_TO_RANDOM ? Number(PICK_TO_RANDOM) : 0
+	console.log(`*** Migration targets:	${PICK_TO_RANDOM ? count : pkgs.length}`)
 
 	const requests = pickElements(pkgs, count).map(
 		({package: pkg, address}) => async (): Promise<{
@@ -94,18 +66,21 @@ const handler = async (
 			const property: string = await propertyFactory
 				.create(createPropertyName(pkg), createPropertySymbol(pkg), address)
 				.then(res => res.logs.find(x => x.event === 'Create')!.args._property)
+				.catch((err: Error) => console.log(err))
+			console.log(`*** Property: ${property}`)
 			const metrics: string = await npm
-				.migrate(property, pkg, market.address)
+				.migrate(property, pkg, market)
 				.then(
 					res => res.logs.find(x => x.event === 'Registered')!.args._metrics
 				)
+				.catch((err: Error) => console.log(err))
+			console.log(`*** Metrics: ${metrics}`)
 			return {property, metrics}
 		}
 	)
 
 	const results = await all(requests, {maxInProgress: 1})
+	console.log(`*** Number of migration completed: ${results.length}`)
 
-	callback(null, results)
+	return results
 }
-
-export = handler
