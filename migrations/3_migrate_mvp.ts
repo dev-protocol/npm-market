@@ -8,12 +8,16 @@ import {
 config()
 
 const handler = function(deployer, network) {
+	if (network === 'test') {
+		return
+	}
+
 	const {MARKET_FACTORY_ADDRESS, PROPERTY_FACTORY_ADDRESS} = process.env
 	if (
 		MARKET_FACTORY_ADDRESS === undefined ||
 		PROPERTY_FACTORY_ADDRESS === undefined
 	) {
-		return console.log(`require envs is not found in ${network}`)
+		return
 	}
 
 	const npm = artifacts.require('NpmMarket')

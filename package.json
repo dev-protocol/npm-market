@@ -17,7 +17,7 @@
 		"lint:solium": "solium --dir . --fix",
 		"lint:format": "prettier --write '**/*.{sol,js,json,md,yml}'",
 		"build": "tsc -p tsconfig.build.json",
-		"prebuild": "npm run generate"
+		"prebuild": "rm -f migrations/*.js && npm run generate"
 	},
 	"author": "",
 	"license": "MPL-2.0",

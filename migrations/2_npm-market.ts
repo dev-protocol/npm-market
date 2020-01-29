@@ -1,4 +1,8 @@
-const handler = function(deployer) {
+const handler = function(deployer, network) {
+	if (network === 'test') {
+		return
+	}
+
 	const npmAuthn = artifacts.require('QueryNpmAuthentication')
 	const npmDownloads = artifacts.require('QueryNpmDownloads')
 	deployer.deploy(
