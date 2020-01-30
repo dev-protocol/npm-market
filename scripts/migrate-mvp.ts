@@ -4,7 +4,10 @@ import {
 	PropertyFactoryInstance
 } from '../types/truffle-contracts'
 import {all} from 'promise-parallel-throttle'
+import Web3 from 'web3'
+import {config} from 'dotenv'
 import {open, close, get as getLog, addToWrite, removeToWrite} from './log'
+config()
 
 type Pkgs = Array<{
 	package: string
@@ -20,6 +23,10 @@ type Results = Array<{
 }>
 
 const ZERO = '0x0000000000000000000000000000000000000000'
+
+const TX_OPTIONS: Truffle.TransactionDetails = {
+	gasPrice: Web3.utils.toWei(process.env.MIGRATION_GAS_PRISE ?? '2', 'Gwei')
+}
 
 const createPropertyName = (pkg: string): string =>
 	pkg
@@ -79,7 +86,12 @@ export const migrateMvp = async (
 			let _property = getLog(pkg)
 			if (_property === undefined || _property === null) {
 				_property = await propertyFactory
-					.create(createPropertyName(pkg), createPropertySymbol(pkg), address)
+					.create(
+						createPropertyName(pkg),
+						createPropertySymbol(pkg),
+						address,
+						TX_OPTIONS
+					)
 					.then(res => res.logs.find(x => x.event === 'Create')!.args._property)
 					.catch((err: Error) => {
 						console.log('error on creating a new property')
@@ -97,7 +109,7 @@ export const migrateMvp = async (
 			const property = _property
 
 			const metrics: string = await npm
-				.migrate(property, pkg, market)
+				.migrate(property, pkg, market, TX_OPTIONS)
 				.then(res => {
 					removeToWrite(pkg)
 					return res.logs.find(x => x.event === 'Registered')!.args._metrics
