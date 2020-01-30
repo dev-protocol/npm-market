@@ -56,8 +56,8 @@ contract('Migrate MVP', ([deployer]) => {
 					}
 
 					const [metricsContract, propertyContract] = await Promise.all([
-						createMetrics(metrics),
-						createProperty(property)
+						createMetrics(metrics!),
+						createProperty(property!)
 					])
 					const [
 						related2Metrics,
@@ -67,7 +67,7 @@ contract('Migrate MVP', ([deployer]) => {
 						symbol
 					] = await Promise.all([
 						metricsContract.property(),
-						npmMarket.getPackage(metrics),
+						npmMarket.getPackage(metrics!),
 						propertyContract.author(),
 						propertyContract.name(),
 						propertyContract.symbol()
@@ -75,7 +75,7 @@ contract('Migrate MVP', ([deployer]) => {
 					const pkg = pkgs.find(x => x.package === pkgName)
 					expect(pkg).to.be.not.equal(undefined)
 					expect(related2Metrics.toLocaleLowerCase()).to.be.equal(
-						property.toLocaleLowerCase()
+						property!.toLocaleLowerCase()
 					)
 					expect(author.toLocaleLowerCase()).to.be.equal(
 						pkg!.address.toLocaleLowerCase()
