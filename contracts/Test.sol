@@ -113,5 +113,6 @@ contract NpmMarketTest is NpmMarket {
 
 	function setPackages(string memory _pkg, address _metrics) public {
 		packages[_metrics] = _pkg;
+		metrics[keccak256(abi.encodePacked(_pkg))] = _metrics;
 	}
 }

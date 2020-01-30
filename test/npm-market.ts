@@ -177,6 +177,52 @@ contract('NpmMarket', ([deployer, user]) => {
 			})
 		})
 	})
+	describe('getPackage', () => {
+		let npm: NpmMarketTestInstance
+		const metrics = '0x1D03CE5922e82763a9b57c63F801BD8082C32378'
+		before(async () => {
+			const launched = await init(deployer)
+			const contracts = await createNpmTest(
+				launched.queryAuthn,
+				launched.queryDownloads
+			)
+			npm = contracts.npm
+			await npm.setPackages('npm', metrics)
+		})
+		it('get package name by metrics address', async () => {
+			const res = await npm.getPackage(metrics)
+			expect(res.toString()).to.be.equal('npm')
+		})
+		it('returns empty when not registered metrics address', async () => {
+			const res = await npm.getPackage(
+				'0x812788B0b58Cb16e7c2DD6Ead2ad2a52a1caFf6F'
+			)
+			expect(res.toString()).to.be.equal('')
+		})
+	})
+	describe('getMetrics', () => {
+		let npm: NpmMarketTestInstance
+		const metrics = '0x1D03CE5922e82763a9b57c63F801BD8082C32378'
+		before(async () => {
+			const launched = await init(deployer)
+			const contracts = await createNpmTest(
+				launched.queryAuthn,
+				launched.queryDownloads
+			)
+			npm = contracts.npm
+			await npm.setPackages('npm', metrics)
+		})
+		it('get metrics address by package name', async () => {
+			const res = await npm.getMetrics('npm')
+			expect(res.toString()).to.be.equal(metrics)
+		})
+		it('returns 0 address when not registered package', async () => {
+			const res = await npm.getMetrics('n')
+			expect(res.toString()).to.be.equal(
+				'0x0000000000000000000000000000000000000000'
+			)
+		})
+	})
 	describe('migrate', () => {
 		it('migratable is true by default', async () => {
 			const {npm} = await init(deployer)

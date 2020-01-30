@@ -14,6 +14,7 @@ contract NpmMarket is Ownable {
 	bool public migratable = true;
 
 	mapping(address => string) internal packages;
+	mapping(bytes32 => address) internal metrics;
 	mapping(bytes32 => address) internal callbackMarket;
 	mapping(bytes32 => address) internal callbackAllocator;
 	mapping(bytes32 => address) internal pendingAuthentication;
@@ -67,7 +68,7 @@ contract NpmMarket is Ownable {
 		external
 		returns (bool)
 	{
-		string memory package = getPackage(_metrics);
+		string memory package = packages[_metrics];
 		bytes32 id = QueryNpmDownloads(queryNpmDownloads).query(
 			_begin,
 			_end,
@@ -80,11 +81,11 @@ contract NpmMarket is Ownable {
 
 	function calculated(bytes32 _id, uint256 _result) external {
 		emit Calculated(_id, _result);
-		address metrics = pendingMetrics[_id];
+		address _metrics = pendingMetrics[_id];
 		address dest = callbackAllocator[_id];
 		delete pendingMetrics[_id];
 		delete callbackAllocator[_id];
-		IAllocator(dest).calculatedCallback(metrics, _result);
+		IAllocator(dest).calculatedCallback(_metrics, _result);
 	}
 
 	function register(
@@ -92,16 +93,26 @@ contract NpmMarket is Ownable {
 		string memory _package,
 		address _market
 	) private {
-		address metrics = IMarket(_market).authenticatedCallback(
+		bytes32 key = createKey(_package);
+		address _metrics = IMarket(_market).authenticatedCallback(
 			_property,
-			keccak256(abi.encodePacked(_package))
+			key
 		);
-		packages[metrics] = _package;
-		emit Registered(metrics, _package);
+		packages[_metrics] = _package;
+		metrics[key] = _metrics;
+		emit Registered(_metrics, _package);
 	}
 
-	function getPackage(address _metrics) public view returns (string memory) {
+	function createKey(string memory _package) private view returns(bytes32) {
+		return keccak256(abi.encodePacked(_package));
+	}
+
+	function getPackage(address _metrics) external view returns (string memory) {
 		return packages[_metrics];
+	}
+
+	function getMetrics(string calldata _package) external view returns (address) {
+		return metrics[createKey(_package)];
 	}
 
 	function migrate(address _property, string memory _package, address _market)
