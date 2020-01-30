@@ -1,7 +1,7 @@
 import {resolve} from 'path'
 import {readFileSync, writeFileSync} from 'fs'
 
-type Log = Map<string, string>
+type Log = Map<string, string | null>
 
 const location = resolve(__dirname, '.log')
 
@@ -29,10 +29,15 @@ export const close = (): void => {
 	IN_MEMORY.clear()
 }
 
-export const get = (key: string): string | undefined => IN_MEMORY.get(key)
+export const get = (key: string): string | null | undefined =>
+	IN_MEMORY.get(key)
 
 export const add = (key: string, value: string): void => {
 	IN_MEMORY.set(key, value)
+}
+
+export const remove = (key: string): void => {
+	IN_MEMORY.delete(key)
 }
 
 export const addToWrite = (key: string, value: string): void => {
