@@ -57,7 +57,7 @@
 		}
 	},
 	"dependencies": {
-		"@dev-protocol/protocol": "^0.1.1",
+		"@dev-protocol/protocol": "^0.1.2",
 		"@openzeppelin/contracts": "^2.4.0",
 		"promise-parallel-throttle": "^3.3.0"
 	}
