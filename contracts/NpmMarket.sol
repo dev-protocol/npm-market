@@ -103,15 +103,23 @@ contract NpmMarket is Ownable {
 		emit Registered(_metrics, _package);
 	}
 
-	function createKey(string memory _package) private view returns(bytes32) {
+	function createKey(string memory _package) private view returns (bytes32) {
 		return keccak256(abi.encodePacked(_package));
 	}
 
-	function getPackage(address _metrics) external view returns (string memory) {
+	function getPackage(address _metrics)
+		external
+		view
+		returns (string memory)
+	{
 		return packages[_metrics];
 	}
 
-	function getMetrics(string calldata _package) external view returns (address) {
+	function getMetrics(string calldata _package)
+		external
+		view
+		returns (address)
+	{
 		return metrics[createKey(_package)];
 	}
 
