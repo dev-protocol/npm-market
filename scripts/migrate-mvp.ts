@@ -81,7 +81,10 @@ export const migrateMvp = async (
 				_property = await propertyFactory
 					.create(createPropertyName(pkg), createPropertySymbol(pkg), address)
 					.then(res => res.logs.find(x => x.event === 'Create')!.args._property)
-					.catch((err: Error) => console.log(err))
+					.catch((err: Error) => {
+						console.log('error on creating a new property')
+						console.error(err)
+					})
 			}
 
 			const property = _property!
@@ -94,7 +97,10 @@ export const migrateMvp = async (
 				.then(
 					res => res.logs.find(x => x.event === 'Registered')!.args._metrics
 				)
-				.catch((err: Error) => console.log(err))
+				.catch((err: Error) => {
+					console.log('error on creating new metrics by migration')
+					console.error(err)
+				})
 			console.log(`*** Metrics: ${metrics}`)
 
 			return {property, metrics, skip: false}
