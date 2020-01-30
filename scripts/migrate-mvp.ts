@@ -72,6 +72,7 @@ export const migrateMvp = async (
 				.getMetrics(pkg)
 				.then(x => x.toString() !== ZERO)
 			if (metricsIsExists) {
+				console.log(`*** Skip: ${pkg}`)
 				return {property: '', metrics: '', skip: true}
 			}
 
@@ -104,6 +105,11 @@ export const migrateMvp = async (
 	const results = await all(requests, {maxInProgress: 3})
 	close()
 	console.log(`*** Number of migration completed: ${results.length}`)
+	console.log(
+		`*** Number of migration failed: ${
+			results.filter(x => x.skip === false && x.metrics === undefined).length
+		}`
+	)
 
 	return results
 }
