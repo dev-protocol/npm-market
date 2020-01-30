@@ -7,6 +7,7 @@ import {ERC20} from "openzeppelin-solidity/contracts/token/ERC20/ERC20.sol";
 import {ERC20Detailed} from "openzeppelin-solidity/contracts/token/ERC20/ERC20Detailed.sol";
 import {NpmMarket} from "./NpmMarket.sol";
 
+
 contract Metrics {
 	address public market;
 	address public property;
@@ -17,11 +18,13 @@ contract Metrics {
 	}
 }
 
+
 contract MarketFactory {
 	event Create(address indexed _from, address _market);
 
 	function create(address _addr) external returns (address);
 }
+
 
 contract Market {
 	address public behavior;
@@ -60,6 +63,7 @@ contract Market {
 	}
 }
 
+
 contract Allocator {
 	address public behavior;
 	address public lastMetricsAddress;
@@ -79,6 +83,7 @@ contract Allocator {
 	}
 }
 
+
 contract Property is ERC20, ERC20Detailed {
 	uint8 private constant _decimals = 18;
 	uint256 private constant _supply = 10000000;
@@ -93,6 +98,7 @@ contract Property is ERC20, ERC20Detailed {
 	}
 }
 
+
 contract PropertyFactory {
 	event Create(address indexed _from, address _property);
 
@@ -104,6 +110,7 @@ contract PropertyFactory {
 		emit Create(msg.sender, address(property));
 	}
 }
+
 
 contract NpmMarketTest is NpmMarket {
 	constructor(address _queryNpmAuthentication, address _queryNpmDownloads)

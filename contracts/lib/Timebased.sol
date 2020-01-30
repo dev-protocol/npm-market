@@ -3,6 +3,7 @@ pragma solidity ^0.5.0;
 import {SafeMath} from "@openzeppelin/contracts/math/SafeMath.sol";
 import {Ownable} from "@openzeppelin/contracts/ownership/Ownable.sol";
 
+
 contract Timebased is Ownable {
 	using SafeMath for uint256;
 	struct BaseTime {

@@ -5,6 +5,7 @@ import {NpmMarket} from "./NpmMarket.sol";
 import {Chargeable} from "./lib/Chargeable.sol";
 import {Queryable} from "./lib/Queryable.sol";
 
+
 contract QueryNpmDownloads is Queryable, Chargeable, Timebased {
 	uint24 constant SECONDS_PER_DAY = 86400;
 

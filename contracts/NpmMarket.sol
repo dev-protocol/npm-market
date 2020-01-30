@@ -7,6 +7,7 @@ import {Ownable} from "@openzeppelin/contracts/ownership/Ownable.sol";
 import {QueryNpmAuthentication} from "./QueryNpmAuthentication.sol";
 import {QueryNpmDownloads} from "./QueryNpmDownloads.sol";
 
+
 contract NpmMarket is Ownable {
 	string public schema = "['npm package', 'npm token']";
 	address public queryNpmAuthentication;

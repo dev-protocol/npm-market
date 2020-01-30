@@ -4,6 +4,7 @@ import {NpmMarket} from "./NpmMarket.sol";
 import {Chargeable} from "./lib/Chargeable.sol";
 import {Queryable} from "./lib/Queryable.sol";
 
+
 contract QueryNpmAuthentication is Queryable, Chargeable {
 	mapping(bytes32 => address) internal callbackDestinations;
 
