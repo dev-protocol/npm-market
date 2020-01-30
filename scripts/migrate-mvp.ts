@@ -7,7 +7,6 @@ import {all} from 'promise-parallel-throttle'
 import Web3 from 'web3'
 import {config} from 'dotenv'
 import {open, close, get as getLog, addToWrite, removeToWrite} from './log'
-config()
 
 type Pkgs = Array<{
 	package: string
@@ -24,9 +23,12 @@ type Results = Array<{
 
 const ZERO = '0x0000000000000000000000000000000000000000'
 
-const TX_OPTIONS: Truffle.TransactionDetails = {
-	gasPrice: Web3.utils.toWei(process.env.MIGRATION_GAS_PRISE ?? '2', 'Gwei')
-}
+const txOps = (): Truffle.TransactionDetails => ({
+	gasPrice: Web3.utils.toWei(
+		config().parsed?.MIGRATION_GAS_PRISE ?? '2',
+		'Gwei'
+	)
+})
 
 const createPropertyName = (pkg: string): string =>
 	pkg
@@ -90,7 +92,7 @@ export const migrateMvp = async (
 						createPropertyName(pkg),
 						createPropertySymbol(pkg),
 						address,
-						TX_OPTIONS
+						txOps()
 					)
 					.then(res => res.logs.find(x => x.event === 'Create')!.args._property)
 					.catch((err: Error) => {
@@ -109,7 +111,7 @@ export const migrateMvp = async (
 			const property = _property
 
 			const metrics: string = await npm
-				.migrate(property, pkg, market, TX_OPTIONS)
+				.migrate(property, pkg, market, txOps())
 				.then(res => {
 					removeToWrite(pkg)
 					return res.logs.find(x => x.event === 'Registered')!.args._metrics
