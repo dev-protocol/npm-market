@@ -26,10 +26,16 @@ export const open = (): void => {
 
 export const close = (): void => {
 	write(IN_MEMORY)
+	IN_MEMORY.clear()
 }
 
 export const get = (key: string): string | undefined => IN_MEMORY.get(key)
 
 export const add = (key: string, value: string): void => {
 	IN_MEMORY.set(key, value)
+}
+
+export const addToWrite = (key: string, value: string): void => {
+	add(key, value)
+	write(IN_MEMORY)
 }

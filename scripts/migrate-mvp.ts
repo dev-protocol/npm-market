@@ -4,7 +4,7 @@ import {
 	PropertyFactoryInstance
 } from '../types/truffle-contracts'
 import {all} from 'promise-parallel-throttle'
-import {open, close, add as addLog, get as getLog} from './log'
+import {open, close, get as getLog, addToWrite} from './log'
 
 type Pkgs = Array<{
 	package: string
@@ -85,12 +85,12 @@ export const migrateMvp = async (
 						console.log('error on creating a new property')
 						console.error(err)
 					})
+				console.log(`*** Property(created): ${_property!}`)
+			} else {
+				console.log(`*** Property(already created): ${_property}`)
 			}
 
 			const property = _property!
-
-			addLog(pkg, property)
-			console.log(`*** Property: ${property}`)
 
 			const metrics: string = await npm
 				.migrate(property, pkg, market)
@@ -98,6 +98,7 @@ export const migrateMvp = async (
 					res => res.logs.find(x => x.event === 'Registered')!.args._metrics
 				)
 				.catch((err: Error) => {
+					addToWrite(pkg, property)
 					console.log('error on creating new metrics by migration')
 					console.error(err)
 				})
