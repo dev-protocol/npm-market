@@ -4,7 +4,7 @@ import {
 	PropertyFactoryInstance
 } from '../types/truffle-contracts'
 import {all} from 'promise-parallel-throttle'
-import {open, close, get as getLog, addToWrite, remove} from './log'
+import {open, close, get as getLog, addToWrite, removeToWrite} from './log'
 
 type Pkgs = Array<{
 	package: string
@@ -14,8 +14,8 @@ type Pkgs = Array<{
 }>
 
 type Results = Array<{
-	property: string
-	metrics: string
+	property?: string
+	metrics?: string
 	skip: boolean
 }>
 
@@ -64,8 +64,8 @@ export const migrateMvp = async (
 
 	const requests = pickElements(pkgs, count).map(
 		({package: pkg, address}) => async (): Promise<{
-			property: string
-			metrics: string
+			property?: string
+			metrics?: string
 			skip: boolean
 		}> => {
 			const metricsIsExists = await npm
@@ -90,12 +90,16 @@ export const migrateMvp = async (
 				console.log(`*** Property(already created): ${_property}`)
 			}
 
-			const property = _property!
+			if (_property === undefined || _property === null) {
+				return {skip: false}
+			}
+
+			const property = _property
 
 			const metrics: string = await npm
 				.migrate(property, pkg, market)
 				.then(res => {
-					remove(pkg)
+					removeToWrite(pkg)
 					return res.logs.find(x => x.event === 'Registered')!.args._metrics
 				})
 				.catch((err: Error) => {
@@ -114,12 +118,12 @@ export const migrateMvp = async (
 	close()
 	console.log(
 		`*** Number of migration completed: ${
-			results.filter(x => x.skip && x.metrics).length
+			results.filter(x => x.skip === false && x.metrics).length
 		}`
 	)
 	console.log(
 		`*** Number of migration failed: ${
-			results.filter(x => x.skip === false && x.metrics === undefined).length
+			results.filter(x => x.skip === false && !x.metrics).length
 		}`
 	)
 
