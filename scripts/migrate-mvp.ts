@@ -4,6 +4,7 @@ import {
 	PropertyFactoryInstance
 } from '../types/truffle-contracts'
 import {all} from 'promise-parallel-throttle'
+import {open, close, add as addLog, get as getLog} from './log'
 
 type Pkgs = Array<{
 	package: string
@@ -67,17 +68,24 @@ export const migrateMvp = async (
 			metrics: string
 			skip: boolean
 		}> => {
-			const isExists = await npm
+			const metricsIsExists = await npm
 				.getMetrics(pkg)
 				.then(x => x.toString() !== ZERO)
-			if (isExists) {
+			if (metricsIsExists) {
 				return {property: '', metrics: '', skip: true}
 			}
 
-			const property: string = await propertyFactory
-				.create(createPropertyName(pkg), createPropertySymbol(pkg), address)
-				.then(res => res.logs.find(x => x.event === 'Create')!.args._property)
-				.catch((err: Error) => console.log(err))
+			let _property = getLog(pkg)
+			if (_property === undefined) {
+				_property = await propertyFactory
+					.create(createPropertyName(pkg), createPropertySymbol(pkg), address)
+					.then(res => res.logs.find(x => x.event === 'Create')!.args._property)
+					.catch((err: Error) => console.log(err))
+			}
+
+			const property = _property!
+
+			addLog(pkg, property)
 			console.log(`*** Property: ${property}`)
 
 			const metrics: string = await npm
@@ -92,7 +100,9 @@ export const migrateMvp = async (
 		}
 	)
 
+	open()
 	const results = await all(requests, {maxInProgress: 3})
+	close()
 	console.log(`*** Number of migration completed: ${results.length}`)
 
 	return results
