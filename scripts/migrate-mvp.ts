@@ -15,7 +15,10 @@ type Pkgs = Array<{
 type Results = Array<{
 	property: string
 	metrics: string
+	skip: boolean
 }>
+
+const ZERO = '0x0000000000000000000000000000000000000000'
 
 const createPropertyName = (pkg: string): string =>
 	pkg
@@ -62,12 +65,21 @@ export const migrateMvp = async (
 		({package: pkg, address}) => async (): Promise<{
 			property: string
 			metrics: string
+			skip: boolean
 		}> => {
+			const isExists = await npm
+				.getMetrics(pkg)
+				.then(x => x.toString() !== ZERO)
+			if (isExists) {
+				return {property: '', metrics: '', skip: true}
+			}
+
 			const property: string = await propertyFactory
 				.create(createPropertyName(pkg), createPropertySymbol(pkg), address)
 				.then(res => res.logs.find(x => x.event === 'Create')!.args._property)
 				.catch((err: Error) => console.log(err))
 			console.log(`*** Property: ${property}`)
+
 			const metrics: string = await npm
 				.migrate(property, pkg, market)
 				.then(
@@ -75,11 +87,12 @@ export const migrateMvp = async (
 				)
 				.catch((err: Error) => console.log(err))
 			console.log(`*** Metrics: ${metrics}`)
-			return {property, metrics}
+
+			return {property, metrics, skip: false}
 		}
 	)
 
-	const results = await all(requests, {maxInProgress: 1})
+	const results = await all(requests, {maxInProgress: 3})
 	console.log(`*** Number of migration completed: ${results.length}`)
 
 	return results

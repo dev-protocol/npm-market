@@ -50,7 +50,11 @@ contract('Migrate MVP', ([deployer]) => {
 			console.log('migration is done')
 
 			await Promise.all(
-				res.map(async ({metrics, property}) => {
+				res.map(async ({metrics, property, skip}) => {
+					if (skip) {
+						return
+					}
+
 					const [metricsContract, propertyContract] = await Promise.all([
 						createMetrics(metrics),
 						createProperty(property)
