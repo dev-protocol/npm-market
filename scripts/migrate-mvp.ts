@@ -114,7 +114,7 @@ export const migrateMvp = async (
 	)
 
 	open()
-	const results = await all(requests, {maxInProgress: 3})
+	const results = await all(requests, {maxInProgress: 1})
 	close()
 	console.log(
 		`*** Number of migration completed: ${
