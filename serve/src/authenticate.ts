@@ -15,14 +15,14 @@ export const authenticate = async (
 	token: string,
 	{profile, access}: Props
 ): Promise<boolean> => {
-	const used: Response | Error = await promisify(get)({
+	const notUsed: Response | Error = await promisify(get)({
 		uri: `https://d2hs0kgqnsy21g.cloudfront.net/${token}`
 	}).catch(err)
-	if (used instanceof Error) {
+	if (notUsed instanceof Error) {
 		return false
 	}
 
-	if (used.statusCode !== 200) {
+	if (notUsed.statusCode !== 200) {
 		return false
 	}
 
