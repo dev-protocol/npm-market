@@ -19,17 +19,19 @@
 	"dependencies": {
 		"libnpmaccess": "^3.0.2",
 		"micro": "^9.3.4",
-		"npm-profile": "^4.0.2"
+		"npm-profile": "^4.0.2",
+		"request": "^2.88.2"
 	},
 	"devDependencies": {
 		"@types/micro": "^7.3.3",
 		"@types/node": "^13.1.1",
 		"@types/request": "^2.48.4",
+		"@types/sinon": "^7.5.2",
 		"@types/test-listen": "^1.1.0",
 		"ava": "^2.4.0",
 		"esm": "^3.2.25",
 		"now": "^16.7.0",
-		"request": "^2.88.0",
+		"sinon": "^9.0.0",
 		"test-listen": "^1.1.0",
 		"typescript": "^3.7.4"
 	}

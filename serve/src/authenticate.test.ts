@@ -9,13 +9,6 @@ export const dummy = (correctPackage: string, correctToken: string): Props => ({
 			}
 
 			throw new Error()
-		},
-		removeToken: async (token: string, options: {token: string}) => {
-			if (token === correctToken && options.token === correctToken) {
-				return null
-			}
-
-			throw new Error()
 		}
 	},
 	access: {
@@ -32,19 +25,21 @@ export const dummy = (correctPackage: string, correctToken: string): Props => ({
 })
 
 test('returns true when correct set of npm package name and npm read-only token', async t => {
+	const CORRECT_TOKEN = Math.random().toString()
 	const res = await authenticate(
 		'CORRECT_PACKAGE',
-		'CORRECT_TOKEN',
-		dummy('CORRECT_PACKAGE', 'CORRECT_TOKEN')
+		CORRECT_TOKEN,
+		dummy('CORRECT_PACKAGE', CORRECT_TOKEN)
 	)
 	t.true(res)
 })
 
 test('returns false when incorrect npm package name', async t => {
+	const CORRECT_TOKEN = Math.random().toString()
 	const res = await authenticate(
 		'x_x_;-',
-		'CORRECT_TOKEN',
-		dummy('CORRECT_PACKAGE', 'CORRECT_TOKEN')
+		CORRECT_TOKEN,
+		dummy('CORRECT_PACKAGE', CORRECT_TOKEN)
 	)
 	t.false(res)
 })
@@ -58,14 +53,17 @@ test('returns false when incorrect npm read-only token', async t => {
 	t.false(res)
 })
 
-test('finally, try to delete the token', async t => {
-	t.plan(2)
-	const stub = dummy('CORRECT_PACKAGE', 'CORRECT_TOKEN')
-	stub.profile.removeToken = async () => {
-		t.pass()
-		return null
-	}
-
-	const res = await authenticate('CORRECT_PACKAGE', 'CORRECT_TOKEN', stub)
-	t.true(res)
+test('returns false when npm read-only token that already used', async t => {
+	const CORRECT_TOKEN = Math.random().toString()
+	await authenticate(
+		'CORRECT_PACKAGE_1',
+		CORRECT_TOKEN,
+		dummy('CORRECT_PACKAGE_1', CORRECT_TOKEN)
+	)
+	const res = await authenticate(
+		'CORRECT_PACKAGE_2',
+		CORRECT_TOKEN,
+		dummy('CORRECT_PACKAGE_2', CORRECT_TOKEN)
+	)
+	t.false(res)
 })

