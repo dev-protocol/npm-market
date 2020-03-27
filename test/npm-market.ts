@@ -77,9 +77,7 @@ contract('NpmMarket', ([deployer, user]) => {
 			await waitForEvent(npm, ws)('Calculated')
 			expect(await allocator.lastMetricsAddress()).to.be.equal(metrics)
 			expect(
-				await allocator
-					.lastMetricsValue()
-					.then((x: readonly BigNumber) => x.toNumber())
+				await allocator.lastMetricsValue().then((x: BigNumber) => x.toNumber())
 			).to.be.not.equal(0)
 		})
 		it('emit `Queried` event when request query is began', async () => {
