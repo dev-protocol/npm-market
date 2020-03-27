@@ -42,6 +42,7 @@
 		"husky": "^4.2.1",
 		"prettier": "^1.19.1",
 		"prettier-plugin-solidity": "^1.0.0-alpha.37",
+		"request-promise": "^4.2.5",
 		"truffle": "^5.1.10",
 		"truffle-typings": "^1.0.8",
 		"ts-generator": "0.0.8",
