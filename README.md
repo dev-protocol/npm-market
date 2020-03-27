@@ -1,4 +1,4 @@
-[![CI Status](https://github.com/dev-protocol/npm-market/workflows/Node/badge.svg)](https://github.com/dev-protocol/npm-market/actions)
+[![npm market](https://github.com/dev-protocol/npm-market/workflows/npm%20market/badge.svg)](https://github.com/dev-protocol/npm-market/actions)
 [![code style](https://img.shields.io/badge/code_style-XO-5ed9c7.svg)](https://github.com/xojs/xo)
 [![code style: prettier](https://img.shields.io/badge/code_style-prettier-ff69b4.svg)](https://github.com/prettier/prettier)
 
