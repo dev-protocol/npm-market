@@ -8,7 +8,7 @@ const {
 	ETHEREUM_PROVIDERS_ROPSTEN,
 	ETHEREUM_WALLET_MNEMONIC,
 	ETHEREUM_MOCK_HOST,
-	ETHEREUM_MOCK_PORT
+	ETHEREUM_MOCK_PORT,
 } = process.env
 
 module.exports = {
@@ -18,11 +18,11 @@ module.exports = {
 			version: '^0.5.16',
 			settings: {
 				optimizer: {
-					enabled: true
+					enabled: true,
 				},
-				evmVersion: 'petersburg'
-			}
-		}
+				evmVersion: 'petersburg',
+			},
+		},
 	},
 	networks: {
 		mainnet: {
@@ -33,7 +33,7 @@ module.exports = {
 				),
 			network_id: 1,
 			gas: 4000000,
-			gasPrice: 10000000000
+			gasPrice: 10000000000,
 		},
 		ropsten: {
 			provider: () =>
@@ -43,12 +43,12 @@ module.exports = {
 				),
 			network_id: 3,
 			gas: 4000000,
-			gasPrice: 10000000000
+			gasPrice: 10000000000,
 		},
 		mock: {
 			host: ETHEREUM_MOCK_HOST,
 			port: ETHEREUM_MOCK_PORT,
-			network_id: '*'
-		}
-	}
+			network_id: '*',
+		},
+	},
 }

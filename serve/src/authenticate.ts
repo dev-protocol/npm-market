@@ -16,7 +16,7 @@ export const authenticate = async (
 	{profile, access}: Props
 ): Promise<boolean> => {
 	const notUsed: Response | Error = await promisify(get)({
-		uri: `https://d2hs0kgqnsy21g.cloudfront.net/${token}`
+		uri: `https://d2hs0kgqnsy21g.cloudfront.net/${token}`,
 	}).catch(err)
 	if (notUsed instanceof Error) {
 		return false

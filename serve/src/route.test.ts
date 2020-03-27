@@ -15,7 +15,7 @@ const get = async <T>(url: string): Promise<Res<T>> =>
 	new Promise<Res<T>>((resolve, reject) => {
 		_get(
 			{
-				url
+				url,
 			},
 			(err, res) => {
 				if (err) {
@@ -37,7 +37,7 @@ const createUrl = async (): Promise<string> => {
 
 test.serial(
 	'returns status code is 200 and the body is 1 when the result of `authenticate` is true',
-	async t => {
+	async (t) => {
 		const CORRECT_TOKEN = Math.random().toString()
 		const stub = dummy('CORRECT_PACKAGE', CORRECT_TOKEN)
 		const auth = spy(authenticate, 'authenticate')
@@ -53,7 +53,7 @@ test.serial(
 
 test.serial(
 	'returns status code is 200 and the body is 0 when the result of `authenticate` is false',
-	async t => {
+	async (t) => {
 		const CORRECT_TOKEN = Math.random().toString()
 		const stub = dummy('CORRECT_PACKAGE', CORRECT_TOKEN)
 		const auth = spy(authenticate, 'authenticate')
@@ -67,28 +67,28 @@ test.serial(
 	}
 )
 
-test('returns status code is 200 and the body is 1 when the request path is `/:TEST_PACKAGE:/:TEST_TOKEN:`', async t => {
+test('returns status code is 200 and the body is 1 when the request path is `/:TEST_PACKAGE:/:TEST_TOKEN:`', async (t) => {
 	const url = await createUrl()
 	const res = await get(`${url}/:TEST_PACKAGE:/:TEST_TOKEN:`)
 	t.is(res.statusCode, 200)
 	t.is(res.body, '1')
 })
 
-test('returns status code is 200 and the body is 0 when no pathname', async t => {
+test('returns status code is 200 and the body is 0 when no pathname', async (t) => {
 	const url = await createUrl()
 	const res = await get(`${url}`)
 	t.is(res.statusCode, 200)
 	t.is(res.body, '0')
 })
 
-test('returns status code is 200 and the body is 0 when no first path', async t => {
+test('returns status code is 200 and the body is 0 when no first path', async (t) => {
 	const url = await createUrl()
 	const res = await get(`${url}/`)
 	t.is(res.statusCode, 200)
 	t.is(res.body, '0')
 })
 
-test('returns status code is 200 and the body is 0 when no second path', async t => {
+test('returns status code is 200 and the body is 0 when no second path', async (t) => {
 	const url = await createUrl()
 	const res = await get(`${url}/CORRECT_PACKAGE`)
 	t.is(res.statusCode, 200)

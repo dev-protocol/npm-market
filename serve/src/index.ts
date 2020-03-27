@@ -4,5 +4,5 @@ import {route} from './route'
 
 export = route({
 	profile,
-	access
+	access,
 })

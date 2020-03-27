@@ -17,7 +17,7 @@ const txOps = (): Truffle.TransactionDetails => ({
 	gasPrice: Web3.utils.toWei(
 		config().parsed?.MIGRATION_GAS_PRISE ?? '2',
 		'Gwei'
-	)
+	),
 })
 
 export const migrateMvp = async (
@@ -35,7 +35,7 @@ export const migrateMvp = async (
 				Promise.all([metricsContract.at(metrics)]).then(async ([instance]) =>
 					instance.property()
 				),
-				npm.getPackage(metrics)
+				npm.getPackage(metrics),
 			])
 			if (!property && !pkg) {
 				return {skip: false}
@@ -48,9 +48,11 @@ export const migrateMvp = async (
 
 			const nextMetrics: string = await npm
 				.migrate(property, pkg, market, txOps())
-				.then(res => {
+				.then((res) => {
 					addToWrite(pkg, property)
-					return res.logs.find(x => x.event === 'Registered')!.args._metrics
+					return (res.logs.find((x) => x.event === 'Registered')!.args as {
+						[key: string]: string
+					})._metrics
 				})
 				.catch((err: Error) => {
 					console.log('error on creating new metrics by migration')
@@ -67,11 +69,11 @@ export const migrateMvp = async (
 	close()
 	console.log(
 		'*** Number of migration completed:',
-		results.filter(x => x.skip === false && x.metrics).length
+		results.filter((x) => !x.skip && x.metrics).length
 	)
 	console.log(
 		'*** Number of migration failed:',
-		results.filter(x => x.skip === false && !x.metrics).length
+		results.filter((x) => !x.skip && !x.metrics).length
 	)
 
 	return results

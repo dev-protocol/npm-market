@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/no-unsafe-call */
+/* eslint-disable @typescript-eslint/no-unsafe-member-access */
 import BigNumber from 'bignumber.js'
 import {format, subDays, getTime} from 'date-fns'
 import {get} from 'request-promise'
@@ -7,13 +9,13 @@ import {
 	setTimeTo,
 	waitForEvent,
 	launchEthereumBridge,
-	watch
+	watch,
 } from './utils'
 import {ChildProcess} from 'child_process'
 import {
 	QueryNpmDownloadsInstance,
 	AllocatorInstance,
-	NpmMarketTestInstance
+	NpmMarketTestInstance,
 } from '../types/truffle-contracts'
 const ws = 'ws://localhost:7545'
 
@@ -75,7 +77,9 @@ contract('NpmMarket', ([deployer, user]) => {
 			await waitForEvent(npm, ws)('Calculated')
 			expect(await allocator.lastMetricsAddress()).to.be.equal(metrics)
 			expect(
-				await allocator.lastMetricsValue().then((x: BigNumber) => x.toNumber())
+				await allocator
+					.lastMetricsValue()
+					.then((x: readonly BigNumber) => x.toNumber())
 			).to.be.not.equal(0)
 		})
 		it('emit `Queried` event when request query is began', async () => {
@@ -96,7 +100,7 @@ contract('NpmMarket', ([deployer, user]) => {
 			const time = await setTimeTo(86400 * 7, queryDownloads)
 			allocator.allocate(metrics, time.block.begin, time.block.end)
 
-			const [begin, end, pkg] = await new Promise<string[]>(resolve => {
+			const [begin, end, pkg] = await new Promise<string[]>((resolve) => {
 				watch(queryDownloads, ws)('Queried', (_, values) => {
 					resolve([values._begin, values._end, values._package])
 				})
@@ -121,7 +125,7 @@ contract('NpmMarket', ([deployer, user]) => {
 					time.timestamp.begin,
 					'yyyy-MM-dd'
 				)}:${format(subDays(time.timestamp.end, 1), 'yyyy-MM-dd')}/npm`,
-				json: true
+				json: true,
 			})
 			await waitForEvent(npm, ws)('Calculated')
 			expect(await allocator.lastMetricsAddress()).to.be.equal(metrics)
@@ -233,7 +237,7 @@ contract('NpmMarket', ([deployer, user]) => {
 			const {npm, market} = await init(deployer)
 			const property = '0x812788B0b58Cb16e7c2DD6Ead2ad2a52a1caFf6F'
 			const res = await npm.migrate(property, 'test', market.address)
-			const metrics = res.logs.find(x => x.event === 'Registered')!.args
+			const metrics = res.logs.find((x) => x.event === 'Registered')!.args
 				._metrics
 			const pkg = await npm.getPackage(metrics.toString())
 			expect(pkg.toString()).to.be.equal('test')
@@ -243,7 +247,7 @@ contract('NpmMarket', ([deployer, user]) => {
 			const property = '0x812788B0b58Cb16e7c2DD6Ead2ad2a52a1caFf6F'
 			const res = await npm
 				.migrate(property, 'test', market.address, {
-					from: user
+					from: user,
 				})
 				.catch((err: Error) => err)
 			expect(res).to.be.an.instanceOf(Error)

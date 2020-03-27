@@ -7,7 +7,6 @@ import {config} from 'dotenv'
 config()
 
 export type Metrics = {
-	// eslint-disable-next-line @typescript-eslint/camelcase
 	metrics_factory_create: Array<{
 		metrics: string
 	}>
@@ -20,17 +19,17 @@ const fetch = async (
 	nodeFetch(url, {
 		...init,
 		...{
-			headers: {'x-hasura-admin-secret': process.env.HASURA_ADMIN_SECRET!}
-		}
+			headers: {'x-hasura-admin-secret': process.env.HASURA_ADMIN_SECRET!},
+		},
 	})
 
 export const getAllMetrics = async (): Promise<ApolloQueryResult<Metrics>> =>
 	new ApolloClient({
 		link: createHttpLink({
 			uri: 'https://devprtcl-event.azurewebsites.net/v1/graphql',
-			fetch
+			fetch,
 		}),
-		cache: new InMemoryCache()
+		cache: new InMemoryCache(),
 	}).query<Metrics>({
 		query: gql`
 			{
@@ -38,5 +37,5 @@ export const getAllMetrics = async (): Promise<ApolloQueryResult<Metrics>> =>
 					metrics
 				}
 			}
-		`
+		`,
 	})

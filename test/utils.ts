@@ -1,10 +1,12 @@
+/* eslint-disable @typescript-eslint/no-unsafe-call */
+/* eslint-disable @typescript-eslint/no-unsafe-member-access */
 import {
 	QueryNpmAuthenticationInstance,
 	QueryNpmDownloadsInstance,
 	NpmMarketInstance,
 	MarketInstance,
 	AllocatorInstance,
-	NpmMarketTestInstance
+	NpmMarketTestInstance,
 } from '../types/truffle-contracts'
 import BigNumber from 'bignumber.js'
 import Web3 from 'web3'
@@ -19,9 +21,9 @@ export const launchEthereumBridge = async (): Promise<ChildProcess> => {
 		'127.0.0.1',
 		'-p',
 		'7545',
-		'--dev'
+		'--dev',
 	])
-	await new Promise(resolve => {
+	await new Promise((resolve) => {
 		const handler = (data: Buffer): void => {
 			console.log(data.toString())
 			if (data.includes('Ctrl+C to exit')) {
@@ -59,7 +61,7 @@ export const waitForEvent = (deployedContract: any, uri: string) => async (
 ): Promise<Error | void> =>
 	new Promise((resolve, reject) => {
 		setTimeout(() => reject(new Error()), timeout)
-		watch(deployedContract, uri)(name, err => {
+		watch(deployedContract, uri)(name, (err) => {
 			if (err) {
 				return reject(err)
 			}
@@ -90,12 +92,12 @@ export const init = async (
 	await Promise.all([
 		queryAuthn.charge({
 			from: deployer,
-			value: '100000000000000000'
+			value: '100000000000000000',
 		}),
 		queryDownloads.charge({
 			from: deployer,
-			value: '100000000000000000'
-		})
+			value: '100000000000000000',
+		}),
 	])
 	return {queryAuthn, queryDownloads, npm, market, allocator}
 }
@@ -140,11 +142,11 @@ export const setTimeTo = async (
 	return {
 		timestamp: {
 			begin,
-			end
+			end,
 		},
 		block: {
 			begin: baseBlock,
-			end: endBlock
-		}
+			end: endBlock,
+		},
 	}
 }

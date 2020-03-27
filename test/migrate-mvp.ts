@@ -12,9 +12,9 @@ const MockNpmMarket = ({
 		z: string
 	): Promise<Truffle.TransactionResponse> {
 		return Promise.resolve({
-			logs: [{event: 'Registered', args: {_metrics: `${x}-${y}-${z}`}}]
+			logs: [{event: 'Registered', args: {_metrics: `${x}-${y}-${z}`}}],
 		} as Truffle.TransactionResponse)
-	}
+	},
 } as unknown) as NpmMarketInstance
 
 const MockMetricsContract = ({
@@ -26,14 +26,14 @@ const MockMetricsContract = ({
 		return {
 			async property(): Promise<string> {
 				return `property-${x}`
-			}
+			},
 		}
-	}
+	},
 } as unknown) as MetricsContract
 
 contract('Migrate MVP', () => {
 	describe('migration', () => {
-		it('migration all packages', async function() {
+		it('migration all packages', async function () {
 			this.timeout(3600000)
 
 			const DUMMY_MARKET = '0xFD1407983EEaA0bf89b884E566C99A0DEb742e77'

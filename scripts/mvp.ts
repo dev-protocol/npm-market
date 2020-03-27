@@ -3,7 +3,7 @@ import {migrateMvp} from './migrate-mvp'
 
 config()
 
-const handler = async function(
+const handler = async function (
 	callback: (
 		err: Error | null,
 		res?: ReturnType<typeof migrateMvp> extends Promise<infer T> ? T : never
@@ -15,7 +15,7 @@ const handler = async function(
 	}
 
 	const [npm] = await Promise.all([
-		artifacts.require('NpmMarket').at(NPM_MARKET_ADDRESS)
+		artifacts.require('NpmMarket').at(NPM_MARKET_ADDRESS),
 	])
 	const res = await migrateMvp(
 		npm,
