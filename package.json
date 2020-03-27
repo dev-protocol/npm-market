@@ -25,6 +25,7 @@
 		"@truffle/hdwallet-provider": "^1.0.29",
 		"@types/bignumber.js": "^5.0.0",
 		"@types/dotenv": "^8.2.0",
+		"@types/node-fetch": "^2.5.5",
 		"@types/request-promise": "^4.1.45",
 		"@typescript-eslint/eslint-plugin": "^2.18.0",
 		"@typescript-eslint/parser": "^2.18.0",
@@ -41,7 +42,6 @@
 		"husky": "^4.2.1",
 		"prettier": "^1.19.1",
 		"prettier-plugin-solidity": "^1.0.0-alpha.37",
-		"request-promise": "^4.2.5",
 		"truffle": "^5.1.10",
 		"truffle-typings": "^1.0.8",
 		"ts-generator": "0.0.8",
@@ -59,6 +59,12 @@
 	"dependencies": {
 		"@dev-protocol/protocol": "^0.1.2",
 		"@openzeppelin/contracts": "^2.4.0",
+		"apollo-cache-inmemory": "^1.6.5",
+		"apollo-client": "^2.6.8",
+		"apollo-link-http": "^1.5.16",
+		"graphql": "^14.6.0",
+		"graphql-tag": "^2.10.3",
+		"node-fetch": "^2.6.0",
 		"promise-parallel-throttle": "^3.3.0"
 	}
 }

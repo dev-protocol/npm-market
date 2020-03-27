@@ -9,18 +9,19 @@ const handler = async function(
 		res?: ReturnType<typeof migrateMvp> extends Promise<infer T> ? T : never
 	) => void
 ): Promise<void> {
-	const {MARKET_ADDRESS, PROPERTY_FACTORY_ADDRESS} = process.env
-	if (MARKET_ADDRESS === undefined || PROPERTY_FACTORY_ADDRESS === undefined) {
+	const {MARKET_ADDRESS, NPM_MARKET_ADDRESS} = process.env
+	if (MARKET_ADDRESS === undefined || NPM_MARKET_ADDRESS === undefined) {
 		return
 	}
 
-	const [npm, propertyFactory] = await Promise.all([
-		artifacts.require('NpmMarket').deployed(),
-		artifacts.require('PropertyFactory').at(PROPERTY_FACTORY_ADDRESS)
+	const [npm] = await Promise.all([
+		artifacts.require('NpmMarket').at(NPM_MARKET_ADDRESS)
 	])
-	const res = await migrateMvp(npm, propertyFactory, MARKET_ADDRESS).catch(
-		(err: Error) => err
-	)
+	const res = await migrateMvp(
+		npm,
+		artifacts.require('Metrics'),
+		MARKET_ADDRESS
+	).catch((err: Error) => err)
 
 	if (res instanceof Error) {
 		return callback(res)
