@@ -6,7 +6,7 @@ import {open, close, get as getLog, addToWrite} from './log'
 import {getAllMetrics} from './get-all-metrics'
 
 type Result = {
-	metrics?: string
+	metrics?: string | void
 	legacyMetrics?: string
 	skip: boolean
 }
@@ -46,7 +46,7 @@ export const migrateMvp = async (
 				return {skip: true}
 			}
 
-			const nextMetrics: string = await npm
+			const nextMetrics: string | void = await npm
 				.migrate(property, pkg, market, txOps())
 				.then((res) => {
 					addToWrite(pkg, property)
