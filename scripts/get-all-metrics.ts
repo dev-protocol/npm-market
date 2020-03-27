@@ -4,6 +4,7 @@ import nodeFetch, {RequestInfo, RequestInit} from 'node-fetch'
 import {createHttpLink} from 'apollo-link-http'
 import {InMemoryCache} from 'apollo-cache-inmemory'
 import {config} from 'dotenv'
+config()
 
 export type Metrics = {
 	// eslint-disable-next-line @typescript-eslint/camelcase
@@ -19,7 +20,7 @@ const fetch = async (
 	nodeFetch(url, {
 		...init,
 		...{
-			headers: {'x-hasura-admin-secret': config().parsed!.HASURA_ADMIN_SECRET}
+			headers: {'x-hasura-admin-secret': process.env.HASURA_ADMIN_SECRET!}
 		}
 	})
 
