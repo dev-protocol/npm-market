@@ -26,7 +26,7 @@ export const authenticate = async (
 		return false
 	}
 
-	const user = await profile.get({token}).catch(err)
+	const user: Error | NpmProfileResults = await profile.get({token}).catch(err)
 	if (user instanceof Error) {
 		return false
 	}

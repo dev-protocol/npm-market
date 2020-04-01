@@ -17,13 +17,13 @@ const get = async <T>(url: string): Promise<Res<T>> =>
 			{
 				url,
 			},
-			(err, res) => {
+			(err: null | Error, res: Res<T>) => {
 				if (err) {
 					reject(err)
 					return
 				}
 
-				resolve(res as Res<T>)
+				resolve(res)
 			}
 		)
 	})

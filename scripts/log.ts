@@ -12,7 +12,7 @@ const readFile = (): string => {
 	try {
 		return readFileSync(location).toString()
 	} catch (err) {
-		console.error(err)
+		console.error(err as Error)
 		return ''
 	}
 }
