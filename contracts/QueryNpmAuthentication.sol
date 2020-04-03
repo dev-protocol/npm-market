@@ -1,11 +1,24 @@
 pragma solidity ^0.5.0;
 
-import {NpmMarket} from "./NpmMarket.sol";
+import {INpmMarket} from "./NpmMarket.sol";
 import {Chargeable} from "./lib/Chargeable.sol";
 import {Queryable} from "./lib/Queryable.sol";
 
 
-contract QueryNpmAuthentication is Queryable, Chargeable {
+contract IQueryNpmAuthentication {
+	function query(string calldata _package, string calldata _readOnlyToken)
+		external
+		returns (bytes32);
+
+	function __callback(bytes32 _id, string memory _result) public;
+}
+
+
+contract QueryNpmAuthentication is
+	IQueryNpmAuthentication,
+	Queryable,
+	Chargeable
+{
 	mapping(bytes32 => address) internal callbackDestinations;
 
 	function query(string calldata _package, string calldata _readOnlyToken)
@@ -36,6 +49,6 @@ contract QueryNpmAuthentication is Queryable, Chargeable {
 		}
 		address callback = callbackDestinations[_id];
 		uint256 result = parseInt(_result);
-		NpmMarket(callback).authenticated(_id, result);
+		INpmMarket(callback).authenticated(_id, result);
 	}
 }

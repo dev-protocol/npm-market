@@ -1,12 +1,33 @@
 pragma solidity ^0.5.0;
 
 import {Timebased} from "./lib/Timebased.sol";
-import {NpmMarket} from "./NpmMarket.sol";
+import {INpmMarket} from "./NpmMarket.sol";
 import {Chargeable} from "./lib/Chargeable.sol";
 import {Queryable} from "./lib/Queryable.sol";
 
 
-contract QueryNpmDownloads is Queryable, Chargeable, Timebased {
+contract IQueryNpmDownloads {
+	function query(
+		uint256 _beginTime,
+		uint256 _endTime,
+		string calldata _package
+	)
+		external
+		returns (
+			// solium-disable-next-line indentation
+			bytes32
+		);
+
+	function __callback(bytes32 _id, string memory _result) public;
+}
+
+
+contract QueryNpmDownloads is
+	IQueryNpmDownloads,
+	Queryable,
+	Chargeable,
+	Timebased
+{
 	uint24 constant SECONDS_PER_DAY = 86400;
 
 	mapping(bytes32 => address) internal callbackDestinations;
@@ -54,7 +75,7 @@ contract QueryNpmDownloads is Queryable, Chargeable, Timebased {
 		}
 		address callback = callbackDestinations[_id];
 		uint256 result = parseInt(_result);
-		NpmMarket(callback).calculated(_id, result);
+		INpmMarket(callback).calculated(_id, result);
 	}
 
 	// The function is based on bokkypoobah/BokkyPooBahsDateTimeLibrary._daysToDate

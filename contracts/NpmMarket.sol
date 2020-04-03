@@ -4,11 +4,54 @@ import {IMarket} from "@dev-protocol/protocol/contracts/src/market/IMarket.sol";
 // prettier-ignore
 import {IAllocator} from "@dev-protocol/protocol/contracts/src/allocator/IAllocator.sol";
 import {Ownable} from "@openzeppelin/contracts/ownership/Ownable.sol";
-import {QueryNpmAuthentication} from "./QueryNpmAuthentication.sol";
-import {QueryNpmDownloads} from "./QueryNpmDownloads.sol";
+import {IQueryNpmAuthentication} from "./QueryNpmAuthentication.sol";
+import {IQueryNpmDownloads} from "./QueryNpmDownloads.sol";
 
 
-contract NpmMarket is Ownable {
+contract INpmMarket {
+	string public schema;
+	address public queryNpmAuthentication;
+	address public queryNpmDownloads;
+	bool public migratable;
+
+	function authenticate(
+		address _prop,
+		string calldata _npmPackage,
+		string calldata _npmReadOnlyToken,
+		string calldata,
+		string calldata,
+		string calldata,
+		address _dest
+	)
+		external
+		returns (
+			// solium-disable-next-line indentation
+			bool
+		);
+
+	function authenticated(bytes32 _id, uint256 _result) external;
+
+	function calculate(address _metrics, uint256 _begin, uint256 _end)
+		external
+		returns (bool);
+
+	function calculated(bytes32 _id, uint256 _result) external;
+
+	function getPackage(address _metrics) external view returns (string memory);
+
+	function getMetrics(string calldata _package)
+		external
+		view
+		returns (address);
+
+	function migrate(address _property, string memory _package, address _market)
+		public;
+
+	function done() public;
+}
+
+
+contract NpmMarket is INpmMarket, Ownable {
 	string public schema = "['npm package', 'npm token']";
 	address public queryNpmAuthentication;
 	address public queryNpmDownloads;
@@ -41,7 +84,7 @@ contract NpmMarket is Ownable {
 		string calldata,
 		address _dest
 	) external returns (bool) {
-		bytes32 id = QueryNpmAuthentication(queryNpmAuthentication).query(
+		bytes32 id = IQueryNpmAuthentication(queryNpmAuthentication).query(
 			_npmPackage,
 			_npmReadOnlyToken
 		);
@@ -70,7 +113,7 @@ contract NpmMarket is Ownable {
 		returns (bool)
 	{
 		string memory package = packages[_metrics];
-		bytes32 id = QueryNpmDownloads(queryNpmDownloads).query(
+		bytes32 id = IQueryNpmDownloads(queryNpmDownloads).query(
 			_begin,
 			_end,
 			package
@@ -104,7 +147,7 @@ contract NpmMarket is Ownable {
 		emit Registered(_metrics, _package);
 	}
 
-	function createKey(string memory _package) private view returns (bytes32) {
+	function createKey(string memory _package) private pure returns (bytes32) {
 		return keccak256(abi.encodePacked(_package));
 	}
 
