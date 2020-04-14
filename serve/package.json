@@ -17,22 +17,22 @@
 		]
 	},
 	"dependencies": {
-		"libnpmaccess": "^4.0.0",
-		"micro": "^9.3.4",
-		"npm-profile": "^5.0.1",
-		"request": "^2.88.2"
+		"libnpmaccess": "4.0.0",
+		"micro": "9.3.4",
+		"npm-profile": "5.0.1",
+		"request": "2.88.2"
 	},
 	"devDependencies": {
-		"@types/micro": "^7.3.3",
-		"@types/node": "^13.11.0",
-		"@types/request": "^2.48.4",
-		"@types/sinon": "^9.0.0",
-		"@types/test-listen": "^1.1.0",
-		"ava": "^3.5.2",
-		"esm": "^3.2.25",
-		"now": "^17.1.1",
-		"sinon": "^9.0.1",
-		"test-listen": "^1.1.0",
-		"typescript": "^3.8.3"
+		"@types/micro": "7.3.3",
+		"@types/node": "13.11.0",
+		"@types/request": "2.48.4",
+		"@types/sinon": "9.0.0",
+		"@types/test-listen": "1.1.0",
+		"ava": "3.5.2",
+		"esm": "3.2.25",
+		"now": "17.1.1",
+		"sinon": "9.0.1",
+		"test-listen": "1.1.0",
+		"typescript": "3.8.3"
 	}
 }
