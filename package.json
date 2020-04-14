@@ -39,7 +39,7 @@
 		"eslint-plugin-prettier": "3.1.2",
 		"ethereum-bridge": "0.6.2",
 		"ethlint": "1.2.5",
-		"husky": "4.2.3",
+		"husky": "4.2.5",
 		"prettier": "2.0.2",
 		"prettier-plugin-solidity": "1.0.0-alpha.47",
 		"request-promise": "4.2.5",
