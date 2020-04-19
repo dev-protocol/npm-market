@@ -73,7 +73,11 @@ contract Allocator {
 		behavior = _behavior;
 	}
 
-	function allocate(address _metrics, uint256 _start, uint256 _end) public {
+	function allocate(
+		address _metrics,
+		uint256 _start,
+		uint256 _end
+	) public {
 		IMarketBehavior(behavior).calculate(_metrics, _start, _end);
 	}
 
@@ -89,10 +93,11 @@ contract Property is ERC20, ERC20Detailed {
 	uint256 private constant _supply = 10000000;
 	address public author;
 
-	constructor(address _own, string memory _name, string memory _symbol)
-		public
-		ERC20Detailed(_name, _symbol, _decimals)
-	{
+	constructor(
+		address _own,
+		string memory _name,
+		string memory _symbol
+	) public ERC20Detailed(_name, _symbol, _decimals) {
 		author = _own;
 		_mint(author, _supply);
 	}
@@ -102,10 +107,11 @@ contract Property is ERC20, ERC20Detailed {
 contract PropertyFactory {
 	event Create(address indexed _from, address _property);
 
-	function create(string memory _name, string memory _symbol, address _author)
-		public
-		returns (address)
-	{
+	function create(
+		string memory _name,
+		string memory _symbol,
+		address _author
+	) public returns (address) {
 		Property property = new Property(_author, _name, _symbol);
 		emit Create(msg.sender, address(property));
 	}

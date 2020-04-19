@@ -31,9 +31,16 @@ contract INpmMarket {
 
 	function authenticated(bytes32 _id, uint256 _result) external;
 
-	function calculate(address _metrics, uint256 _begin, uint256 _end)
+	function calculate(
+		address _metrics,
+		uint256 _begin,
+		uint256 _end
+	)
 		external
-		returns (bool);
+		returns (
+			// solium-disable-next-line indentation
+			bool
+		);
 
 	function calculated(bytes32 _id, uint256 _result) external;
 
@@ -44,8 +51,12 @@ contract INpmMarket {
 		view
 		returns (address);
 
-	function migrate(address _property, string memory _package, address _market)
-		public;
+	function migrate(
+		address _property,
+		string memory _package,
+		address _market
+		// solium-disable-next-line indentation
+	) public;
 
 	function done() public;
 }
@@ -108,10 +119,11 @@ contract NpmMarket is INpmMarket, Ownable {
 		register(property, package, dest);
 	}
 
-	function calculate(address _metrics, uint256 _begin, uint256 _end)
-		external
-		returns (bool)
-	{
+	function calculate(
+		address _metrics,
+		uint256 _begin,
+		uint256 _end
+	) external returns (bool) {
 		string memory package = packages[_metrics];
 		bytes32 id = IQueryNpmDownloads(queryNpmDownloads).query(
 			_begin,
@@ -167,10 +179,11 @@ contract NpmMarket is INpmMarket, Ownable {
 		return metrics[createKey(_package)];
 	}
 
-	function migrate(address _property, string memory _package, address _market)
-		public
-		onlyOwner
-	{
+	function migrate(
+		address _property,
+		string memory _package,
+		address _market
+	) public onlyOwner {
 		require(migratable, "now is not migratable");
 		register(_property, _package, _market);
 	}

@@ -83,7 +83,11 @@ contract QueryNpmDownloads is
 	function secondsToDate(uint256 _seconds)
 		private
 		pure
-		returns (uint256 year, uint256 month, uint256 day)
+		returns (
+			uint256 year,
+			uint256 month,
+			uint256 day
+		)
 	{
 		int256 __days = int256(_seconds / 86400);
 
@@ -103,11 +107,11 @@ contract QueryNpmDownloads is
 		day = uint256(_day);
 	}
 
-	function dateFormat(uint256 _y, uint256 _m, uint256 _d)
-		private
-		pure
-		returns (string memory)
-	{
+	function dateFormat(
+		uint256 _y,
+		uint256 _m,
+		uint256 _d
+	) private pure returns (string memory) {
 		return
 			string(
 				abi.encodePacked(
