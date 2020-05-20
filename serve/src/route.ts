@@ -24,7 +24,9 @@ export const route = (authenticateProps: Props) => async (
 		return send()
 	}
 
-	const [, pkg, token] = pathname.split('/')
+	const [, pkgOrOrg, orgOrToken, emptyOrToken] = pathname.split('/')
+	const pkg = emptyOrToken ? `${pkgOrOrg}/${orgOrToken}` : pkgOrOrg
+	const token = emptyOrToken ? emptyOrToken : orgOrToken
 	if (pkg === ':TEST_PACKAGE:' && token === ':TEST_TOKEN:') {
 		return send(1)
 	}

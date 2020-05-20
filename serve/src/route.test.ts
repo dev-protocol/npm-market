@@ -52,6 +52,24 @@ test.serial(
 )
 
 test.serial(
+	'returns status code is 200 and the body is 1 when the result of `authenticate` is true. ( if in an org package )',
+	async (t) => {
+		const CORRECT_TOKEN = Math.random().toString()
+		const stub = dummy('@CORRECT_ORG/CORRECT_PACKAGE', CORRECT_TOKEN)
+		const auth = spy(authenticate, 'authenticate')
+		const server = micro(route(stub))
+		const url = await listen(server)
+		const res = await get(
+			`${url}/@CORRECT_ORG/CORRECT_PACKAGE/${CORRECT_TOKEN}`
+		)
+		t.is(res.statusCode, 200)
+		t.is(res.body, '1')
+		t.true(await auth.getCall(0).returnValue)
+		auth.restore()
+	}
+)
+
+test.serial(
 	'returns status code is 200 and the body is 0 when the result of `authenticate` is false',
 	async (t) => {
 		const CORRECT_TOKEN = Math.random().toString()
